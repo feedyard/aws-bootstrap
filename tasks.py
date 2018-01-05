@@ -7,23 +7,30 @@ import json
 accounts_file = Path('./accounts.json')
 platform_name = ''
 account_profiles = ''
+prod_acct = 'prod'
+prod_region = 'us-east-1'
 
 # uses project or Org name as first word followed by account name
 # example: feedyard-sandbox-state
 bucket_name = '{}-{}-state'
 
 print ('CLI: this s3 bucket creation script is intended to be used as part of a new AWS account bootstrap event and ' \
-       'is therefore not expected to be used past the this initial kickoff step.\n')
+       'is therefore not expected to be used past this initial kickoff step.\n')
 
 @task
-def test(ctx):
+def swarm(ctx):
+    global accounts_file
+    global platform_name
+    global account_profiles
+    global prod_acct
+    global prod_region
+
     load_profiles()
-    accounts = account_profiles['accounts']
-    for acct in accounts:
-        print(accounts[acct])
+    ctx.run("bash setup-backend.sh {0} {1} {2} {3}".format(platform_name, prod_acct, prod_region, account_profiles[prod_acct]), pty=True)
+    ctx.run("terraform init -backend-config backend.conf")
 
 @task
-def list(ctx):
+def listbuckets(ctx):
     global accounts_file
     global account_profiles
 
@@ -37,7 +44,7 @@ def list(ctx):
         print("\t%s" % buckets)
 
 @task
-def create(ctx):
+def createbuckets(ctx):
     global accounts_file
     global platform_name
     global account_profiles
@@ -62,7 +69,7 @@ def create(ctx):
             print ('{} already exists')
 
 @task
-def delete(ctx):
+def deletebuckets(ctx):
     global accounts_file
     global platform_name
     global account_profiles

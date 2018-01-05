@@ -1,16 +1,12 @@
 # feedyard/bootstrap-aws
-Starting with a newly created AWS Account, a minimal bootstrap configuration must occur to support an IaC process
-for managing aws state.  
+A minimal bootstrap configuration must occur to support an IaC process for managing aws state.  
 
-With bootstrap access available, and assuming the configuration tools (terraform, kops, etc) maintain aws state files,
+With bootstrap access keys available, and assuming the configuration tools (terraform, kops, etc) maintain aws state files,
 then the only bootstrap setup really needed is S3 buckets for state information. (see below for additional bootstrap
-config for self managed pipelines.)
+config for self managed pipelines.) The bootstrap step is run from the infrastructure developer's laptop.
 
 By default the buckets will be created with the following names:  
 <project or org name parameter>-<account name>-state  
-
-The project or org name is passed to the create command:  
-`$ invoke create test-project`
 
 _note_: routine s3, unique naming requirements apply.  
 
@@ -20,7 +16,8 @@ A bootstrap group/user has been created in each account with permissions suffici
 configuration plans, and this access information is maintained locally in standard ~/.aws configuration files.  
 
 Create a local file _accounts.json_ in the following format. The tasks.py file will use this information to setup the
-appropriate profile information for account access.  
+appropriate profile information for account access. This example assumes that one account will be named 'prod' as the
+production account.
 
 ```json
 {
@@ -44,8 +41,12 @@ the infrastructure team that owns this platform product. CircleCi.com is an exam
 could be something self-managed elsewhere in the enterprise but available/appropriate to the needs of this team.
 
 #### internal pattern
-Where the bootstrap process requires aws based compute from which to run a pipeline tool, the /internal folder includes
+Where the bootstrap process requires aws based compute from which to run a pipeline tool, this repo includes
 terraform to support such a self-managed environment in the production account.
 
+the bootstrap terreform isolates a dedicated VPC/subnet location, with a pre-defined security group and IAM instance
+profile to support a pipeline service that will manage the starting point for creating and maintaining the components
+that enable building the management layer. It is recommended that the Bootstrap env be implemented in the AWS used for
+production since this is typically the most protected account with the least potential number of IAM users.
 
-folder with docker-swarm/jenkins pipeline
+assumes the correct bootstrap-prod credentials are in ENV

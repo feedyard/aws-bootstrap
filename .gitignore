@@ -1,1 +1,9 @@
 *.env
+/env
+
+.ruby-version
+Gemfile.lock
+
+.terraform
+terraform.tfstate.d
+*.pem
