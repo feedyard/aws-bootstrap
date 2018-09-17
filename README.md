@@ -6,7 +6,7 @@ then the only bootstrap setup really needed is S3 buckets for state information.
 config for self managed pipelines.) The bootstrap step is run from the infrastructure developer's laptop.  
 
 By default the buckets will be created with the following names:  
-<project or org name parameter>-<account name>-state  
+<project or org name parameter>-<account name>-bootstrap-state  
 
 _note_:  s3 unique naming requirements apply.  
 
@@ -28,6 +28,16 @@ production account.
   }
 }
 ```
+
+`$ invoke createbuckets`  
+create an s3 bucket in the default region of each account following the above naming pattern.  
+
+`$ invoke listbuckets`  
+list all s3 buckets in the listed accounts.  
+
+`$ deletebuckets`  
+delete the bootstrap-state bucket from each account.  
+
 
 #### external pattern
 The external pattern assumes the use of a pipeline orchestration tool already available and maintained separately from
