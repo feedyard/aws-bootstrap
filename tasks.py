@@ -12,22 +12,12 @@ prod_region = 'us-east-1'
 
 # uses project or Org name as first word followed by account name
 # example: feedyard-sandbox-state
-bucket_name = '{}-{}-state'
+bucket_name = '{}-{}-bootstrap-state'
 
 print ('CLI: this s3 bucket creation script is intended to be used as part of a new AWS account bootstrap event and ' \
        'is therefore not expected to be used past this initial kickoff step.\n')
 
-@task
-def swarm(ctx):
-    global accounts_file
-    global platform_name
-    global account_profiles
-    global prod_acct
-    global prod_region
 
-    load_profiles()
-    ctx.run("bash setup-backend.sh {0} {1} {2} {3}".format(platform_name, prod_acct, prod_region, account_profiles[prod_acct]), pty=True)
-    ctx.run("terraform init -backend-config backend.conf")
 
 @task
 def listbuckets(ctx):
@@ -64,6 +54,17 @@ def createbuckets(ctx):
             s3 = session.resource('s3')
             bucket_versioning = s3.BucketVersioning(bucket)
             bucket_versioning.enable()
+            bucket_tagging = s3.BucketTagging(bucket)
+            bucket_tagging.put(
+                Tagging={
+                    'TagSet': [
+                        {
+                            'Key': 'feedyard',
+                            'Value': 'true'
+                        },
+                    ]
+                }
+            )
 
         else:
             print ('{} already exists')
