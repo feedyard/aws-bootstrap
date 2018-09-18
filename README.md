@@ -25,6 +25,11 @@ production account.
     "account2 name": "matching aws service account credential in ~/.aws/credentials",
     "account3 name": "matching aws service account credential in ~/.aws/credentials",
     "account4 name": "matching aws service account credential in ~/.aws/credentials"
+  },
+  "available_logging": {
+    "account": "aws account name. One of the accounts above.",
+    "profile": "aws service account credential in ~/.aws/credentials",
+    "canonical_user_id": "12345abcd"
   }
 }
 ```
