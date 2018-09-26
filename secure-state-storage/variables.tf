@@ -1,14 +1,14 @@
-# backend.conf is setup at the start based on target account
 terraform {
   required_version = ">= 0.11.8"
-
-  backend "s3" {
-  }
 }
 
 provider "aws" {
   version = ">= 1.36"
-  region = "${var.aws_region}"
+  region  = "${var.aws_region}"
+  profile = "${var.profile}"
 }
 
-variable "aws_region" { default = "us-east-1" }
+variable "aws_region" {}
+variable "profile" {}
+variable "bucket_name" {}
+variable "enable_key_rotation" {}

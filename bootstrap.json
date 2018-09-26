@@ -1,0 +1,9 @@
+{
+  "prefix": "feedyard",
+  "accounts": {
+    "profile": "feedyard.profile.bootstrap",
+    "sandbox": "feedyard.sandbox.bootstrap",
+    "nonprod": "feedyard.nonprod.bootstrap",
+    "prod": "feedyard.prod.bootstrap"
+  }
+}

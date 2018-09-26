@@ -14,7 +14,7 @@ if [ $# != 3 ]; then
 fi
 
 cat <<EOF > backend.conf
-key="$1-aws-bootstrap-secure-state-storage/$2-secure-state.tfstate"
+key="$1-aws-bootstrap/bootstrap/$2-secure-state.tfstate"
 bucket="$1-$2-bootstrap-state"
 region="$3"
 profile="default"

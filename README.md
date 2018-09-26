@@ -13,36 +13,44 @@ _note_:  s3 unique naming requirements apply.
 
 ## usage
 
-Create a local file _accounts.json_ in the following format. The tasks.py file will use this information to setup the
-appropriate profile information for account access. This example assumes that one account will be named 'prod' as the
-production account.
+### CLI for bootstrap s3 buckets
+
+Create a local file _bootstrap_vars.json_ in the following format. The tasks.py file will use this information to setup the
+appropriate profile information for account access. You may list one or more accounts in which to create a state folder  
+depending on your need. The feedyard/aws-bootstrap configuration assumes the use of a single bootstrap state bucket,  
+along with the logging bucket. A later, logging structure pipeline will likely update these state buckets to use a  
+different destination bucket.
 
 ```json
 {
-  "platform": "platform or project name to use in bucket name",
-  "accounts": {
+  "prefix": "platform or project name to use in bucket name",
+  "state_buckets": {
     "account1 name": "matching aws service account credential in ~/.aws/credentials",
-    "account2 name": "matching aws service account credential in ~/.aws/credentials",
-    "account3 name": "matching aws service account credential in ~/.aws/credentials",
-    "account4 name": "matching aws service account credential in ~/.aws/credentials"
+    ...repeat for each aws account used by the platform, to store the bootstrap state
+    
   },
-  "available_logging": {
+  "log_buckets": {
     "account": "aws account name. One of the accounts above.",
-    "profile": "aws service account credential in ~/.aws/credentials",
-    "canonical_user_id": "12345abcd"
+    ...repeat for each aws account you want to add a bootstrap log bucket
   }
 }
 ```
+
+In addition to the credential information in ~/.aws, the createbuckets command will use the environment variable  
+$CANONICAL_USER_ID to add log-delivery group permissions to the available logging bucket.
 
 `$ invoke createbuckets`  
 create an s3 bucket in the default region of each account following the above naming pattern.  
 
 `$ invoke listbuckets`  
-list all s3 buckets in the listed accounts.  
+list all s3 buckets in the accounts.  
 
 `$ deletebuckets`  
-delete the bootstrap-state bucket from each account.  
+delete the bootstrap state and log bucket from each account.  
 
+### secure-state-storage pipeline
+
+### bootstrap-cluster pipeline
 
 #### external pattern
 The external pattern assumes the use of a pipeline orchestration tool already available and maintained separately from
@@ -78,3 +86,4 @@ ruby (>= 2.5.0)
   gem: awspec
 
 run `prereqs.sh` to install local dependencies.  
+
