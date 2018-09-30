@@ -9,6 +9,8 @@ executors:
     - image: quay.io/feedyard/circleci-infra-agent
     environment:
       BASH_ENV: local.env
+      PRODUCT: feedyard
+      BOOTSTRAP_REGION: us-west-1
 
 commands:
 
@@ -59,10 +61,7 @@ commands:
     - run:
         name: write backend.conf file
         working_directory: ~/aws-bootstrap/bootstrap-cluster
-        command: |
-          echo $PRODUCT
-          echo $BOOTSTRAP_REGION
-          bash setup_credentials.sh << parameters.aws-access-key-id >> << parameters.aws-secret-access-key >> << parameters.region >> << parameters.aws-role >>
+        command: bash setup_credentials.sh << parameters.aws-access-key-id >> << parameters.aws-secret-access-key >> << parameters.region >> << parameters.aws-role >>
 
 # 1 = aws access key id for the pipeline service account identity (required)
 # 2 = aws secret access key for the pipeline service account identity (required)
@@ -73,8 +72,6 @@ jobs:
 
   terraform-plan:
     executor: bootstrap-cluster
-    environment:
-      BASH_ENV: local.env
     parameters:
       product:
         description: 'product or team name, prefix used to tag or identify aws resources'
