@@ -87,7 +87,7 @@ workflows:
     jobs:
       - terraform-plan:
           product: feedyard
-          account:
+          account: nonprod
           region: us-west-1
           infra-environment: test
 
