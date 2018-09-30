@@ -40,6 +40,7 @@ commands:
     steps:
       - run:
           name: write backend.conf file
+          working_directory: ~/aws-bootstrap/bootstrap-cluster
           command: bash setup_backend.sh << parameters.product >> << parameters.account >> << parameters.region >> << parameters.infra-environment >>
 
 # input params
