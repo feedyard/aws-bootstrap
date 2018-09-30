@@ -43,12 +43,28 @@ commands:
           working_directory: ~/aws-bootstrap/bootstrap-cluster
           command: bash setup_backend.sh << parameters.product >> << parameters.account >> << parameters.region >> << parameters.infra-environment >>
 
-# input params
-# 1 = product or delivery platform team name (required)
-# 2 = aws account name (required)
-# 3 = aws region (required)
-# 4 = Infrastructure environment name (optional)
+  setup-credentials:
+    parameters:
+      region:
+        description: 'aws-region'
+        type: string
+      aws-access-key-id:
+        type: string
+      aws-secret-access-key:
+        type: string
+      aws-role:
+        description: 'aws role in sts format: '
+        type: string
+    steps:
+    - run:
+        name: write backend.conf file
+        working_directory: ~/aws-bootstrap/bootstrap-cluster
+        command: bash setup_credentials.sh << parameters.aws-access-key-id >> << parameters.aws-secret-access-key >> << parameters.region >> << parameters.aws-role >>
 
+# 1 = aws access key id for the pipeline service account identity (required)
+# 2 = aws secret access key for the pipeline service account identity (required)
+# 3 = aws region (required)
+# 4 = aws role to assume (optional)
 
 jobs:
 
@@ -67,13 +83,13 @@ jobs:
       region:
         description: 'aws-region'
         type: string
-#      aws-access-key-id:
-#        type: string
-#      aws-secret-access-key:
-#        type: string
-#      aws-role:
-#        description: 'aws role in sts format: '
-#        type: string
+      aws-access-key-id:
+        type: string
+      aws-secret-access-key:
+        type: string
+      aws-role:
+        description: 'aws role in sts format: '
+        type: string
     steps:
       - setup-job
       - setup-backend:
@@ -81,15 +97,23 @@ jobs:
           account: << parameters.account >>
           region: << parameters.region >>
           infra-environment: << parameters.infra-environment >>
+      - setup-credentials:
+          region: << parameters.region >>
+          aws-access-key-id: << parameters.aws-access-key-id >>
+          aws-secret-access-key: << parameters.aws-secret-access-key >>
+          aws-role: << parameters.aws-role >>
 
 workflows:
   aws-bootstrap-pipeline:
     jobs:
       - terraform-plan:
-          product: feedyard
+          product: $PRODUCT
           account: nonprod
-          region: us-west-1
+          region: $BOOTSTRAP_REGION
           infra-environment: test
+          aws-access-key-id: $FEEDYARD_NONPROD_ACCESS_KEY_ID
+          aws-secret-access-key: $FEEDYARD_NONPROD_SECRET_ACCESS_KEY
+          aws-role:
 
 
 

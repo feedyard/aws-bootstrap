@@ -1,23 +1,22 @@
 #!/usr/bin/env bash
 #
 # input params
-# 1 = aws access key for the pipeline service account identity
-# 2 = aws secret key for the pipeline service account identity
-# 3 = aws region to use
-# 4 = role to assume or 'none' if not needed, script will fail if not provided
+# 1 = aws access key id for the pipeline service account identity (required)
+# 2 = aws secret access key for the pipeline service account identity (required)
+# 3 = aws region (required)
+# 4 = aws role to assume (optional)
 
 set -euo pipefail
 
 # add check for valid number of parameters
 if [ $# == 0 ] || [ $# == 2 ] || [ $# -gt 4 ]; then
-    echo "incorrect number of parameters"
+    echo "error: setup_credentials.sh: incorrect number of parameters"
     exit 1
 fi
 
-
 # add 'version' as a parameter to validate the version of this script being used
 if [ $1 == "version" ]; then
-    echo "1.2.0"
+    echo "1.2.1"
     exit 0
 fi
 
