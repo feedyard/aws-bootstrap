@@ -4,7 +4,7 @@ version: 2.1
 executors:
 
   bootstrap-cluster:
-    working_directory: ~/aws-bootstrap/bootstrap-cluster
+    working_directory: ~/aws-bootstrap
     docker:
     - image: quay.io/feedyard/circleci-infra-agent
     environment:
