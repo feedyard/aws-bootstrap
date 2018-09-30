@@ -61,6 +61,7 @@ commands:
     - run:
         name: write backend.conf file
         working_directory: ~/aws-bootstrap/bootstrap-cluster
+        source: $BASH_ENV
         command: bash setup_credentials.sh << parameters.aws-access-key-id >> << parameters.aws-secret-access-key >> << parameters.region >> << parameters.aws-role >>
 
 # 1 = aws access key id for the pipeline service account identity (required)
