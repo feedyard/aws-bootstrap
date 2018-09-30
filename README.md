@@ -23,15 +23,12 @@ different destination bucket.
 
 ```json
 {
-  "prefix": "platform or project name to use in bucket name",
-  "state_buckets": {
-    "account1 name": "matching aws service account credential in ~/.aws/credentials",
-    ...repeat for each aws account used by the platform, to store the bootstrap state
-    
-  },
-  "log_buckets": {
-    "account": "aws account name. One of the accounts above.",
-    ...repeat for each aws account you want to add a bootstrap log bucket
+  "prefix": "team or product short-name",
+  "accounts": {
+    "profile": "name of profile in aws .credentials file for service account with appropriate permissions",
+    "sandbox": "name of profile...",
+    "nonprod": "name of profile...",
+    "prod": "name of profile..."
   }
 }
 ```

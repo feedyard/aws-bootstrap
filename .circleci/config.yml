@@ -1,18 +1,18 @@
 ---
-version: 2
+version: 2.1
 
-defaults: &defaults
-  working_directory: ~/aws-bootstrap
-  environment:
-    ORGANIZATION: feedyard
-    BASH_ENV: local.env
-  docker:
-  - image: quay.io/feedyard/circleci-infra-agent
+executors:
 
-jobs:
+  bootstrap-cluster:
+    working_directory: ~/aws-bootstrap/bootstrap-cluster
+    docker:
+    - image: quay.io/feedyard/circleci-infra-agent
+    environment:
+      BASH_ENV: local.env
 
-  plan_profile:
-    <<: *defaults
+commands:
+
+  setup-job:
     steps:
     - checkout
     - setup_remote_docker
@@ -22,109 +22,199 @@ jobs:
     - run:
         name: decrypt secrets
         command: invoke dec
-    - run:
-        name: setup terraform remote state backend configuration file
-        working_directory: ~/aws-bootstrap/secure-state-storage
-        environment:
-          APPLY_ACCOUNT: profile
-          STATE_ACCOUNT: prod
-          AWS_REGION: us-east-1
-        command: >
-          bash setup_backend.sh
-            $ORGANIZATION
-            $APPLY_ACCOUNT
-            $STATE_ACCOUNT
-            $FEEDYARD_PROD_ACCESS_KEY_ID
-            $FEEDYARD_PROD_SECRET_ACCESS_KEY
-            $AWS_REGION
-    - run:
-        name: setup aws credentials
-        environment:
-          AWS_REGION: us-east-1
-        command: >
-          bash setup_credentials.sh
-            $FEEDYARD_PROFILE_ACCESS_KEY_ID
-            $FEEDYARD_PROFILE_SECRET_ACCESS_KEY
-            $AWS_REGION
-    - run:
-        name: initialize the terraform state backend
-        working_directory: ~/aws-bootstrap/secure-state-storage
-        command: invoke init
-    - run:
-        name: generate terraform plan
-        working_directory: ~/aws-bootstrap/secure-state-storage
-        environment:
-          APPLY_ACCOUNT: profile
-        command: invoke plan $APPLY_ACCOUNT
 
-  apply_profile:
-    <<: *defaults
+  setup-backend:
+    parameters:
+      product:
+        description: 'product or team name, prefix used to tag or identify aws resources'
+        type: string
+      account:
+        description: 'short name used to identify aws account. e.g., sandbox, prod'
+        type: string
+      infra-environment:
+        description: 'infrastructure environment name. e.g., cluster name'
+        type: string
+      region:
+        description: 'aws-region'
+        type: string
     steps:
-    - checkout
-    - setup_remote_docker
-    - run:
-        name: confirm Docker
-        command: docker info
-    - run:
-        name: decrypt secrets
-        command: invoke dec
-    - run:
-        name: setup aws credentials
-        environment:
-          AWS_REGION: us-east-1
-        command: >
-          bash setup_credentials.sh
-          $FEEDYARD_PROFILE_ACCESS_KEY_ID
-          $FEEDYARD_PROFILE_SECRET_ACCESS_KEY
-          $AWS_REGION
-    - run:
-        name: setup terraform state file location
-        working_directory: ~/aws-bootstrap/secure-state-storage
-        environment:
-          AWS_REGION: us-east-1
-          ACCOUNT: prod
-        command: >
-          bash setup_backend.sh
-          $ORGANIZATION
-          $ACCOUNT
-          $AWS_REGION
-    - run:
-        name: initialize the terraform state backend
-        working_directory: ~/aws-bootstrap/secure-state-storage
-        command: invoke init
-    - run:
-        name: apply terraform plan
-        working_directory: ~/aws-bootstrap/secure-state-storage
-        environment:
-          ACCOUNT: prod
-        command: invoke apply $ACCOUNT
-    - run:
-        name: test terraform state
-        environment:
-          AWS_REGION: us-east-1
-          ACCOUNT: prod
-        command: invoke test $ACCOUNT
+      - run:
+          name: write backend.conf file
+          command: bash setup_backend.sh << parameters.product >> << parameters.account >> << parameters.region >> << parameters.infra-environment >>
 
+# input params
+# 1 = product or delivery platform team name (required)
+# 2 = aws account name (required)
+# 3 = aws region (required)
+# 4 = Infrastructure environment name (optional)
+
+
+jobs:
+
+  terraform-plan:
+    executor: bootstrap-cluster
+    parameters:
+      product:
+        description: 'product or team name, prefix used to tag or identify aws resources'
+        type: string
+      account:
+        description: 'short name used to identify aws account. e.g., sandbox, prod'
+        type: string
+      infra-environment:
+        description: 'infrastructure environment name. e.g., cluster name'
+        type: string
+      region:
+        description: 'aws-region'
+        type: string
+#      aws-access-key-id:
+#        type: string
+#      aws-secret-access-key:
+#        type: string
+#      aws-role:
+#        description: 'aws role in sts format: '
+#        type: string
+    steps:
+      - setup-job
+      - setup-backend:
+          product: << parameters.product >>
+          account: << parameters.account >>
+          region: << parameters.region >>
+          infra-environment: << parameters.infra-environment >>
 
 workflows:
-  version: 2
-  di-baseline-platform-aws-resources-pipeline:
+  aws-bootstrap-pipeline:
     jobs:
-    - plan_preview
-    - approve-preview-plan:
-        type: approval
-        requires:
-        - plan_preview
-    - apply_preview:
-        requires:
-        - approve-preview-plan
-    - plan_nonprod:
-        requires:
-        - apply_preview
-    - approve-nonprod-plan:
-        type: approval
-        requires:
-        - plan_nonprod
-    - apply_nonprod:
-        requires:
-        - approve-nonprod-plan
+      - terraform-plan:
+          product: feedyard
+          account:
+          region: us-west-1
+          infra-environment: test
+
+
+
+
+#version: 2
+#
+#defaults: &defaults
+#  working_directory: ~/aws-bootstrap/bootstrap-cluster
+#  environment:
+#    PRODUCT: feedyard
+#    BASH_ENV: local.env
+#  docker:
+#  - image: quay.io/feedyard/circleci-infra-agent
+#
+#jobs:
+#
+#  plan_bootstrap-sandbox:
+#    <<: *defaults
+#    steps:
+#    - checkout
+#    - setup_remote_docker
+#    - run:
+#        name: confirm Docker engine running
+#        command: docker info
+#    - run:
+#        name: decrypt secrets
+#        command: invoke dec
+#    - run:
+#        name: setup terraform remote state backend configuration file
+#        working_directory: ~/aws-bootstrap/bootstrap-cluster
+#        environment:
+#          ACCOUNT: sandbox
+#          AWS_REGION: us-east-1
+#        command: >
+#          bash setup_backend.sh
+#            PRODUCT
+#            $ACCOUNT
+#            $AWS_REGION
+#    - run:
+#        name: setup aws credentials
+#        environment:
+#          AWS_REGION: us-east-1
+#        command: >
+#          bash setup_credentials.sh
+#            $FEEDYARD_SANDBOX_ACCESS_KEY_ID
+#            $FEEDYARD_SANDBOX_SECRET_ACCESS_KEY
+#            $AWS_REGION
+#    - run:
+#        name: initialize the terraform state backend
+#        working_directory: ~/aws-bootstrap/bootstrap-cluster
+#        command: invoke init
+#    - run:
+#        name: generate terraform plan
+#        working_directory: ~/aws-bootstrap/bootstrap-cluster
+#        environment:
+#          ACCOUNT: sandbox
+#        command: invoke plan $ACCOUNT
+#
+#  apply_bootstrap_sandbox:
+#    <<: *defaults
+#    steps:
+#    - checkout
+#    - setup_remote_docker
+#    - run:
+#        name: confirm Docker
+#        command: docker info
+#    - run:
+#        name: decrypt secrets
+#        command: invoke dec
+#    - run:
+#        name: setup aws credentials
+#        environment:
+#          AWS_REGION: us-east-1
+#        command: >
+#          bash setup_credentials.sh
+#          $FEEDYARD_PROFILE_ACCESS_KEY_ID
+#          $FEEDYARD_PROFILE_SECRET_ACCESS_KEY
+#          $AWS_REGION
+#    - run:
+#        name: setup terraform state file location
+#        working_directory: ~/aws-bootstrap/secure-state-storage
+#        environment:
+#          AWS_REGION: us-east-1
+#          ACCOUNT: prod
+#        command: >
+#          bash setup_backend.sh
+#          $ORGANIZATION
+#          $ACCOUNT
+#          $AWS_REGION
+#    - run:
+#        name: initialize the terraform state backend
+#        working_directory: ~/aws-bootstrap/secure-state-storage
+#        command: invoke init
+#    - run:
+#        name: apply terraform plan
+#        working_directory: ~/aws-bootstrap/secure-state-storage
+#        environment:
+#          ACCOUNT: prod
+#        command: invoke apply $ACCOUNT
+#    - run:
+#        name: test terraform state
+#        environment:
+#          AWS_REGION: us-east-1
+#          ACCOUNT: prod
+#        command: invoke test $ACCOUNT
+#
+#
+#workflows:
+#  version: 2
+#  di-baseline-platform-aws-resources-pipeline:
+#    jobs:
+#    - plan_preview
+#    - approve-preview-plan:
+#        type: approval
+#        requires:
+#        - plan_preview
+#    - apply_preview:
+#        requires:
+#        - approve-preview-plan
+#    - plan_nonprod:
+#        requires:
+#        - apply_preview
+#    - approve-nonprod-plan:
+#        type: approval
+#        requires:
+#        - plan_nonprod
+#    - apply_nonprod:
+#        requires:
+#        - approve-nonprod-plan

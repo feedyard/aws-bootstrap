@@ -28,17 +28,10 @@ def listbuckets(ctx):
         buckets = [bucket['Name'] for bucket in s3.list_buckets()['Buckets']]
         print("\t%s" % buckets)
 
-# def bucket_does_not_exist(session, bucket):
-#     s3 = session.resource('s3')
-#     try:
-#         s3.meta.client.head_bucket(Bucket=bucket)
-#         return False
-#     except botocore.exceptions.ClientError as e:
-#         # If a client error is thrown, then check that it was a 404 error.
-#         # If it was a 404 error, then the bucket does not exist.
-#         error_code = int(e.response['Error']['Code'])
-#         if error_code == 403:
-#             print("Private Bucket. Forbidden Access!")
-#             return False
-#         elif error_code == 404:
-#             return True
+
+def load_config(config_file):
+    if config_file.is_file():
+        return json.loads(open(config_file).read())
+    else:
+        print ('missing {} file.'.format(config_file))
+        sys.exit(1)
