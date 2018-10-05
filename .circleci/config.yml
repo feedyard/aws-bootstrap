@@ -72,6 +72,8 @@ jobs:
     executor: bootstrap-cluster
     environment:
       BASH_ENV: local.env
+      PRODUCT: feedyard
+      BOOTSTRAP_REGION: us-west-1
     parameters:
       product:
         description: 'product or team name, prefix used to tag or identify aws resources'
