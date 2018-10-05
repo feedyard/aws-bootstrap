@@ -8,8 +8,7 @@ executors:
     docker:
     - image: quay.io/feedyard/circleci-infra-agent
     environment:
-      PRODUCT: feedyard
-      BOOTSTRAP_REGION: us-west-1
+      BASH_ENV: local.env
 
 commands:
 
@@ -71,9 +70,6 @@ jobs:
 
   terraform-plan:
     executor: bootstrap-cluster
-    environment:
-      BASH_ENV: local.env
-      BOOTSTRAP_REGION: us-west-1
     parameters:
       product:
         description: 'product or team name, prefix used to tag or identify aws resources'
