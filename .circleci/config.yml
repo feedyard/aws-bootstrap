@@ -70,6 +70,8 @@ jobs:
 
   terraform-plan:
     executor: bootstrap-cluster
+    environment:
+      BASH_ENV: local.env
     parameters:
       product:
         description: 'product or team name, prefix used to tag or identify aws resources'
