@@ -98,7 +98,7 @@ jobs:
       - setup-job
       - run:
           name: setup bash_env
-          command: source $BASH_ENV
+          command: source local.env
       - setup-backend:
           product: << parameters.product >>
           account: << parameters.account >>
