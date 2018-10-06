@@ -10,7 +10,7 @@ set -euo pipefail
 
 # add check for valid number of parameters
 if [ $# == 0 ] || [ $# == 2 ] || [ $# -gt 4 ]; then
-    echo "error: setup_credentials.sh: incorrect number of parameters"
+    echo "error: setup_credentials.sh: incorrect number of parameters $#"
     exit 1
 fi
 
