@@ -29,7 +29,7 @@ aws_secret_access_key=$2
 region=$3
 EOF
 
-if [ $# == 4 ]; then
+if [ $# == 4 ] && [ $4 != "none" ]; then
     TMP="$(aws sts assume-role --output json --role-arn ${4} --role-session-name $CIRCLE_PROJECT_REPONAME || { echo 'sts failure!' ; exit 1; })"
 
     ACCESS_KEY=$(echo $TMP | jq -r ".Credentials.AccessKeyId")

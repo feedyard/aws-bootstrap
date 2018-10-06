@@ -94,7 +94,6 @@ jobs:
       aws-role:
         description: 'aws role in sts format: '
         type: string
-        default: ''
     steps:
       - setup-job
       - run:
@@ -121,7 +120,7 @@ workflows:
           infra-environment: test
           aws-access-key-id: $FEEDYARD_NONPROD_ACCESS_KEY_ID
           aws-secret-access-key: $FEEDYARD_NONPROD_SECRET_ACCESS_KEY
-          aws-role:
+          aws-role: none
 
 
 
