@@ -96,6 +96,9 @@ jobs:
         type: string
     steps:
       - setup-job
+      - run:
+          name: setup bash_env
+          command: source $BASH_ENV
       - setup-backend:
           product: << parameters.product >>
           account: << parameters.account >>
