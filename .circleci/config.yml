@@ -94,6 +94,7 @@ jobs:
       aws-role:
         description: 'aws role in sts format: '
         type: string
+        default: ''
     steps:
       - setup-job
       - run:

@@ -45,3 +45,6 @@ aws_session_token=${SESSION_TOKEN}
 region=$3
 EOF
 fi
+
+
+# && [ $4 != "none" ]
