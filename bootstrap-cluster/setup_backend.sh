@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 #
+# setup_backup.sh
+# v1.2.0
+#
 # input params
 # 1 = product or delivery platform team name (required)
 # 2 = aws account name (required)

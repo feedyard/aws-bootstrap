@@ -9,6 +9,8 @@ executors:
     - image: quay.io/feedyard/circleci-infra-agent
     environment:
       BASH_ENV: local.env
+      PRODUCT: feedyard
+      BOOTSTRAP_REGION: us-west-1
 
 commands:
 
@@ -26,16 +28,16 @@ commands:
   setup-backend:
     parameters:
       product:
-        description: 'product or team name, prefix used to tag or identify aws resources'
+        description: 'product or team name, prefix used to tag or identify aws resources (required)'
         type: string
       account:
-        description: 'short name used to identify aws account. e.g., sandbox, prod'
-        type: string
-      infra-environment:
-        description: 'infrastructure environment name. e.g., cluster name'
+        description: 'short name used to identify aws account. e.g., sandbox, prod (required)'
         type: string
       region:
-        description: 'aws-region'
+        description: 'aws-region (required)'
+        type: string
+      infra-environment:
+        description: 'infrastructure environment name. e.g., cluster name (optional)'
         type: string
     steps:
       - run:
