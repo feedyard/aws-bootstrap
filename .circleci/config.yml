@@ -12,6 +12,7 @@ executors:
       PREFIX: feedyard
       TEST_ACCOUNT: sandbox
       RUN_ACCOUNT: sandbox
+      DEFAULT_REGION: us-east-1
 
 commands:
 
@@ -37,10 +38,21 @@ commands:
       bucket:
         description: 's3 bucket name prefix and account - the shell script will format as <prefix>-<account>-tf-state'
         type: string
+      key:
+        description: 'bucket key, or folder path and filename for tf state file'
+        type: string
+      region:
+        description: 'aws region'
+        type: string
+        default: $DEFAULT_REGION
+      profile:
+        description: '~/.aws/credentials profile to use. Credentials file setup separately'
+        type: string
+        default: 'default'
     steps:
     - run:
         name: put parameter to stdout
-        command: echo << parameters.bucket >>
+        command: echo << parameters.bucket >> << parameters.key >> << parameters.region >> << parameters.profile >>
 
 jobs:
 
