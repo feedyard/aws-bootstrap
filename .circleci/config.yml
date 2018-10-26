@@ -50,16 +50,19 @@ workflows:
   aws-bootstrap-pipeline:
     jobs:
       - tf-plan:
+          name: test-cluster plan
           account: 'terraform plan of test cluster'
       - approve-test-plan:
           type: approval
           requires:
           - tf-plan
       - tf-plan:
+          name: test-cluster apply
           account: 'terraform apply to test cluster'
           requires:
             - approve-test-plan
       - tf-plan:
+          name: bootstrap-cluster plan
           account: 'terraform plan of bootstrap cluster'
           requires:
             - tf-apply
@@ -68,6 +71,7 @@ workflows:
           requires:
             - tf-plan
       - tf-plan:
+          name: bootstrap-cluster apply
           account: 'terraform apply to bootstrap cluster'
           requires:
             - approve-bootstrap-plan
