@@ -10,8 +10,8 @@ executors:
     environment:
       BASH_ENV: local.env
       PREFIX: feedyard
-      $TEST_ACCOUNT: sandbox
-      $RUN_ACCOUNT: sandbox
+      TEST_ACCOUNT: sandbox
+      RUN_ACCOUNT: sandbox
 
 commands:
 
@@ -56,7 +56,7 @@ jobs:
     steps:
       - setup-job
       - setup-backend:
-          bucket: << parameters.prefix >>-<< parameters.account>>
+          bucket: << parameters.prefix >>-<< parameters.account >>
 
   terraform-apply:
     executor: bootstrap-cluster
@@ -70,7 +70,7 @@ jobs:
     steps:
     - setup-job
     - setup-backend:
-        bucket: << parameters.prefix >>-<< parameters.account>>
+        bucket: << parameters.prefix >>-<< parameters.account >>
 
 workflows:
   aws-bootstrap-cluster-pipeline:
