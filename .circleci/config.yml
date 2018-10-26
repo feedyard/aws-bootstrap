@@ -9,6 +9,9 @@ executors:
     - image: quay.io/feedyard/circleci-infra-agent
     environment:
       BASH_ENV: local.env
+      PREFIX: feedyard
+      $TEST_ACCOUNT: sandbox
+      $RUN_ACCOUNT: sandbox
 
 commands:
 
@@ -23,46 +26,59 @@ commands:
         name: decrypt secrets
         command: invoke dec
 
+  # input params
+  # 1 = s3 bucket name, this version of the script imposes the '-tf-state' name ending requirement
+  # 2 = bucket key, or folder path and filename for tf state file
+  # 3 = aws region
+  # 4 = ~/.aws/credentials profile to use
+
   setup-backend:
     parameters:
-      account:
-        description: 'short name used to identify aws account. e.g., sandbox, prod'
+      bucket:
+        description: 's3 bucket name prefix and account - the shell script will format as <prefix>-<account>-tf-state'
         type: string
     steps:
     - run:
         name: put parameter to stdout
-        command: echo << parameters.account >>
+        command: echo << parameters.bucket >>
 
 jobs:
 
   terraform-plan:
     executor: bootstrap-cluster
     parameters:
+      prefix:
+        description: 'prefix'
+        type: string
       account:
-        description: 'short name used to identify aws account. e.g., sandbox, prod'
+        description: 'prefix'
         type: string
     steps:
       - setup-job
       - setup-backend:
-          account: << parameters.account >>
+          bucket: << parameters.prefix >>-<< parameters.account>>
 
   terraform-apply:
     executor: bootstrap-cluster
     parameters:
+      prefix:
+        description: 'prefix'
+        type: string
       account:
         description: 'short name used to identify aws account. e.g., sandbox, prod'
         type: string
     steps:
     - setup-job
     - setup-backend:
-        account: << parameters.account >>
+        bucket: << parameters.prefix >>-<< parameters.account>>
 
 workflows:
   aws-bootstrap-cluster-pipeline:
     jobs:
       - terraform-plan:
           name: TEST plan
-          account: 'terraform plan of bootstrap TEST cluster'
+          prefix: $PREFIX
+          account: $TEST_ACCOUNT
       - approve:
           name: TEST approve
           type: approval
@@ -70,12 +86,14 @@ workflows:
           - TEST plan
       - terraform-apply:
           name: TEST apply
-          account: 'terraform apply to bootstrap TEST cluster'
+          prefix: $PREFIX
+          account: $TEST_ACCOUNT
           requires:
             - TEST approve
       - terraform-plan:
           name: RUN plan
-          account: 'terraform plan of bootstrap RUN cluster'
+          prefix: $PREFIX
+          account: $RUN_ACCOUNT
           requires:
             - TEST apply
       - approve:
@@ -85,6 +103,7 @@ workflows:
             - RUN plan
       - terraform-apply:
           name: RUN apply
-          account: 'terraform apply to bootstrap RUN cluster'
+          prefix: $PREFIX
+          account: $RUN_ACCOUNT
           requires:
             - RUN approve
