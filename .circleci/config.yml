@@ -55,7 +55,7 @@ workflows:
       - approve-test-plan:
           type: approval
           requires:
-          - tf-plan
+          - test-cluster plan
       - tf-plan:
           name: test-cluster apply
           account: 'terraform apply to test cluster'
@@ -65,11 +65,11 @@ workflows:
           name: bootstrap-cluster plan
           account: 'terraform plan of bootstrap cluster'
           requires:
-            - tf-apply
+            - test-cluster apply
       - approve-bootstrap-plan:
           type: approval
           requires:
-            - tf-plan
+            - bootstrap-cluster plan
       - tf-plan:
           name: bootstrap-cluster apply
           account: 'terraform apply to bootstrap cluster'
