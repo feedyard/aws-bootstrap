@@ -46,16 +46,16 @@ jobs:
       - setup-backend:
           account: << parameters.account >>
 
-    terraform-apply:
-      executor: bootstrap-cluster
-      parameters:
-        account:
-          description: 'short name used to identify aws account. e.g., sandbox, prod'
-          type: string
-      steps:
-      - setup-job
-      - setup-backend:
-          account: << parameters.account >>
+  terraform-apply:
+    executor: bootstrap-cluster
+    parameters:
+      account:
+        description: 'short name used to identify aws account. e.g., sandbox, prod'
+        type: string
+    steps:
+    - setup-job
+    - setup-backend:
+        account: << parameters.account >>
 
 workflows:
   aws-bootstrap-cluster-pipeline:
