@@ -1,4 +1,0 @@
-{
-  "bucket_name" : "feedyard-nonprod-tf-state",
-  "enable_key_rotation": "True"
-}

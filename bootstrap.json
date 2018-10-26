@@ -1,5 +1,6 @@
 {
   "prefix": "feedyard",
+  "region": "us-east-1",
   "accounts": {
     "profile": "feedyard.profile.bootstrap",
     "sandbox": "feedyard.sandbox.bootstrap",

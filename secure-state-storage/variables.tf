@@ -1,14 +1,19 @@
 terraform {
-  required_version = ">= 0.11.8"
+  required_version = ">= 0.11.10"
 }
 
 provider "aws" {
-  version = ">= 1.36"
+  version = ">= 1.41"
   region  = "${var.aws_region}"
   profile = "${var.profile}"
 }
 
+provider "random" {
+  version = ">= 2.0"
+}
+
 variable "aws_region" {}
 variable "profile" {}
-variable "bucket_name" {}
-variable "enable_key_rotation" {}
+variable "account" {}
+variable "prefix" {}
+variable "enable_key_rotation" { default = "True" }

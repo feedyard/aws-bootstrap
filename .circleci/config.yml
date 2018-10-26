@@ -9,8 +9,6 @@ executors:
     - image: quay.io/feedyard/circleci-infra-agent
     environment:
       BASH_ENV: local.env
-      PRODUCT: feedyard
-      BOOTSTRAP_REGION: us-west-1
 
 commands:
 
@@ -27,41 +25,13 @@ commands:
 
   setup-backend:
     parameters:
-      product:
-        description: 'product or team name, prefix used to tag or identify aws resources (required)'
-        type: string
       account:
-        description: 'short name used to identify aws account. e.g., sandbox, prod (required)'
-        type: string
-      region:
-        description: 'aws-region (required)'
-        type: string
-      infra-environment:
-        description: 'infrastructure environment name. e.g., cluster name (optional)'
-        type: string
-    steps:
-      - run:
-          name: write backend.conf file
-          working_directory: ~/aws-bootstrap/bootstrap-cluster
-          command: bash setup_backend.sh << parameters.product >> << parameters.account >> << parameters.region >> << parameters.infra-environment >>
-
-  setup-credentials:
-    parameters:
-      region:
-        description: 'aws-region'
-        type: string
-      aws-access-key-id:
-        type: string
-      aws-secret-access-key:
-        type: string
-      aws-role:
-        description: 'aws role in sts format: '
+        description: 'short name used to identify aws account. e.g., sandbox, prod'
         type: string
     steps:
     - run:
-        name: write backend.conf file
-        working_directory: ~/aws-bootstrap/bootstrap-cluster
-        command: bash setup_credentials.sh << parameters.aws-access-key-id >> << parameters.aws-secret-access-key >> << parameters.region >> << parameters.aws-role >>
+        name: put parameter to stdout
+        command: echo << parameters.account >>
 
 # 1 = aws access key id for the pipeline service account identity (required)
 # 2 = aws secret access key for the pipeline service account identity (required)
@@ -72,57 +42,22 @@ jobs:
 
   terraform-plan:
     executor: bootstrap-cluster
-    environment:
-      BASH_ENV: local.env
-      PRODUCT: feedyard
-      BOOTSTRAP_REGION: us-west-1
     parameters:
-      product:
-        description: 'product or team name, prefix used to tag or identify aws resources'
-        type: string
       account:
         description: 'short name used to identify aws account. e.g., sandbox, prod'
         type: string
-      infra-environment:
-        description: 'infrastructure environment name. e.g., cluster name'
-        type: string
-      region:
-        description: 'aws-region'
-        type: string
-      aws-access-key-id:
-        type: string
-      aws-secret-access-key:
-        type: string
-      aws-role:
-        description: 'aws role in sts format: '
-        type: string
     steps:
       - setup-job
-      - run:
-          name: setup bash_env
-          command: source local.env
       - setup-backend:
-          product: << parameters.product >>
           account: << parameters.account >>
-          region: << parameters.region >>
-          infra-environment: << parameters.infra-environment >>
-      - setup-credentials:
-          region: << parameters.region >>
-          aws-access-key-id: << parameters.aws-access-key-id >>
-          aws-secret-access-key: << parameters.aws-secret-access-key >>
-          aws-role: << parameters.aws-role >>
 
 workflows:
   aws-bootstrap-pipeline:
     jobs:
       - terraform-plan:
-          product: $PRODUCT
-          account: nonprod
-          region: $BOOTSTRAP_REGION
-          infra-environment: test
-          aws-access-key-id: $FEEDYARD_NONPROD_ACCESS_KEY_ID
-          aws-secret-access-key: $FEEDYARD_NONPROD_SECRET_ACCESS_KEY
-          aws-role: none
+          account: 'first run account parameter'
+      - terraform-plan:
+          account: 'second run account parameter'
 
 
 

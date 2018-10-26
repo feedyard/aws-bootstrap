@@ -1,7 +1,7 @@
 module "state_bucket" {
-  source = "github.com/feedyard/tf-aws-state-bucket"
+  source = "github.com/feedyard/tf-aws-state-bucket?ref=1.0.0"
 
-  name                = "${var.bucket_name}"
+  name                = "${var.prefix}-${var.account}-tf-state"
   enable_key_rotation = "${var.enable_key_rotation}"
 
   tags = {

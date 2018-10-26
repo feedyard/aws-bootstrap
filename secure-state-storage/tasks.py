@@ -4,7 +4,6 @@ import sys
 import os
 import json
 
-BOOTSTRAP_AWS_REGION='us-east-1'
 BOOTSTRAP_CONFIG_FILE = '../bootstrap.json'
 
 @task
@@ -31,10 +30,10 @@ def deploy(ctx):
         for profile in config['accounts']:
             ctx.run('terraform init')
             ctx.run('terraform workspace select {}'.format(profile))
-            ctx.run('TF_VAR_profile={} TF_VAR_aws_region={} terraform plan -var-file=./{}.json'.format(config['accounts'][profile], BOOTSTRAP_AWS_REGION, profile))
-            approve = input('Approve? (y/n)')
-            if approve == 'y':
-                ctx.run('TF_VAR_profile={} TF_VAR_aws_region={} terraform apply -auto-approve -var-file=./{}.json'.format(config['accounts'][profile], BOOTSTRAP_AWS_REGION, profile))
+            ctx.run('TF_VAR_aws_region={} TF_VAR_profile={} TF_VAR_account={} TF_VAR_prefix={} terraform plan'.format(config['region'], config['accounts'][profile], profile, config['prefix']))
+            approve = input('Approve? (Y/n)')
+            if approve == 'Y':
+                ctx.run('TF_VAR_aws_region={} TF_VAR_profile={} TF_VAR_account={} TF_VAR_prefix={} terraform apply -auto-approve'.format(config['region'], config['accounts'][profile], profile, config['prefix']))
                 os.environ['PROFILE'] = profile
                 ctx.run('AWS_PROFILE={} rspec spec'.format(config['accounts'][profile]))
                 approve = input('Press <Enter> to continue.')
@@ -53,9 +52,9 @@ def destroy(ctx):
         for profile in config['accounts']:
             ctx.run('terraform init')
             ctx.run('terraform workspace select {}'.format(profile))
-            approve = input('delete {}? (y/n/skip)'.format(profile))
-            if approve == 'y':
-                ctx.run('TF_VAR_profile={} TF_VAR_aws_region={} terraform destroy -force -var-file=./{}.json'.format(config['accounts'][profile], BOOTSTRAP_AWS_REGION, profile))
+            approve = input('delete {}? (Y/n/skip)'.format(profile))
+            if approve == 'Y':
+                ctx.run('TF_VAR_aws_region={} TF_VAR_profile={} TF_VAR_account={} TF_VAR_prefix={} terraform destroy -force'.format(config['region'], config['accounts'][profile], profile, config['prefix']))
             elif approve == 'skip':
                 print('skipping {}'.format(profile))
             else:
