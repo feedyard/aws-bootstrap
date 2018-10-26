@@ -35,7 +35,7 @@ commands:
 
 jobs:
 
-  terraform-plan:
+  tf-plan:
     executor: bootstrap-cluster
     parameters:
       account:
@@ -49,7 +49,25 @@ jobs:
 workflows:
   aws-bootstrap-pipeline:
     jobs:
-      - terraform-plan:
-          account: 'first run account parameter'
-      - terraform-plan:
-          account: 'second run account parameter'
+      - tf-plan:
+          account: 'terraform plan of test cluster'
+      - approve-test-plan:
+          type: approval
+          requires:
+          - tf-plan
+      - tf-plan:
+          account: 'terraform apply to test cluster'
+          requires:
+            - approve-test-plan
+      - tf-plan:
+          account: 'terraform plan of bootstrap cluster'
+          requires:
+            - tf-apply
+      - approve-bootstrap-plan:
+          type: approval
+          requires:
+            - tf-plan
+      - tf-plan:
+          account: 'terraform apply to bootstrap cluster'
+          requires:
+            - approve-bootstrap-plan
