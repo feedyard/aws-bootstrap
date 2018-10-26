@@ -35,7 +35,7 @@ commands:
 
 jobs:
 
-  tf-plan:
+  terraform-plan:
     executor: bootstrap-cluster
     parameters:
       account:
@@ -46,32 +46,45 @@ jobs:
       - setup-backend:
           account: << parameters.account >>
 
+    terraform-apply:
+      executor: bootstrap-cluster
+      parameters:
+        account:
+          description: 'short name used to identify aws account. e.g., sandbox, prod'
+          type: string
+      steps:
+      - setup-job
+      - setup-backend:
+          account: << parameters.account >>
+
 workflows:
-  aws-bootstrap-pipeline:
+  aws-bootstrap-cluster-pipeline:
     jobs:
-      - tf-plan:
-          name: test-cluster plan
-          account: 'terraform plan of test cluster'
-      - approve-test-plan:
+      - terraform-plan:
+          name: TEST plan
+          account: 'terraform plan of bootstrap TEST cluster'
+      - approve:
+          name: TEST approve
           type: approval
           requires:
-          - test-cluster plan
-      - tf-plan:
-          name: test-cluster apply
-          account: 'terraform apply to test cluster'
+          - TEST plan
+      - terraform-apply:
+          name: TEST apply
+          account: 'terraform apply to bootstrap TEST cluster'
           requires:
-            - approve-test-plan
-      - tf-plan:
-          name: bootstrap-cluster plan
-          account: 'terraform plan of bootstrap cluster'
+            - TEST approve
+      - terraform-plan:
+          name: RUN plan
+          account: 'terraform plan of bootstrap RUN cluster'
           requires:
-            - test-cluster apply
-      - approve-bootstrap-plan:
+            - TEST apply
+      - approve:
+          name: RUN approve
           type: approval
           requires:
-            - bootstrap-cluster plan
-      - tf-plan:
-          name: bootstrap-cluster apply
-          account: 'terraform apply to bootstrap cluster'
+            - RUN plan
+      - terraform-apply:
+          name: RUN apply
+          account: 'terraform apply to bootstrap RUN cluster'
           requires:
-            - approve-bootstrap-plan
+            - RUN approve
