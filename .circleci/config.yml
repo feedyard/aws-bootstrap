@@ -30,12 +30,6 @@ commands:
         name: decrypt secrets
         command: invoke dec
 
-  # input params
-  # 1 = s3 bucket name, this version of the script imposes the '-tf-state' name ending requirement
-  # 2 = bucket key, or folder path and filename for tf state file
-  # 3 = aws region
-  # 4 = ~/.aws/credentials profile to use
-
   # by convention the terraform state file naming is bucket/pipeline/environment/filename.state
   #
   # bucket = $PREFIX-$AWS_ACCOUNT-tf-state
@@ -66,6 +60,45 @@ commands:
         command: bash setup_aws_backend.sh $PREFIX-<< parameters.account >>-tf-state $PIPELINE/<< parameters.env >>/$STATEFILE << parameters.region >> << parameters.profile >>
 
 jobs:
+
+  terrafrom:
+    executor: bootstrap-cluster
+    parameters:
+      plan:
+        description: 'run terraform plan'
+        type: boolean
+        default: false
+      apply:
+        description: 'run terraform apply'
+        type: boolean
+        default: false
+      account:
+        description: 'short name used to identify aws account. e.g., sandbox, prod'
+        type: string
+        default: $DEFAULT_ACCOUNT
+      env:
+        description: 'infrastructure environment name'
+        type: string
+        default: $DEFAULT_ENV
+      region:
+        description: 'aws region'
+        type: string
+        default: $DEFAULT_REGION
+    steps:
+      - setup-job
+      - setup-backend:
+          account: << parameters.account >>
+          env: << parameters.env >>
+          region: << parameters.region >>
+      - when:
+          condition: << parameters.plan >>
+          steps:
+            - run: echo 'terraform plan'
+      - when:
+          condition: << parameters.apply >>
+          steps:
+            - run: echo 'terraform apply'
+
 
   terraform-plan:
     executor: bootstrap-cluster
@@ -114,35 +147,36 @@ jobs:
 workflows:
   aws-bootstrap-pipeline:
     jobs:
-      - terraform-plan:
-          name: TEST plan
-          account: sandbox
+      - terraform:
+          name: plan of test environment
+          plan: true
           env: test
+          account: sandbox
       - approve:
-          name: TEST approve
+          name: approve plan of test environment
           type: approval
           requires:
-          - TEST plan
+          - plan of test environment
       - terraform-apply:
-          name: TEST apply
+          name: apply plan to test environment
           account: sandbox
           env: test
           requires:
-            - TEST approve
+            - approve plan of test environment
       - terraform-plan:
-          name: RUN plan
+          name: plan of run environment
           account: sandbox
           env: run
           requires:
-            - TEST apply
+            - apply plan to test environment
       - approve:
-          name: RUN approve
+          name: approve plan of run environment
           type: approval
           requires:
-            - RUN plan
+            - plan of run environment
       - terraform-apply:
-          name: RUN apply
+          name: apply plan to run environment
           account: sandbox
           env: run
           requires:
-            - RUN approve
+            - approve plan of run environment
