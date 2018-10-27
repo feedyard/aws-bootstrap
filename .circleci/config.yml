@@ -61,7 +61,7 @@ commands:
 
 jobs:
 
-  terrafrom:
+  terraform:
     executor: bootstrap-cluster
     parameters:
       plan:
