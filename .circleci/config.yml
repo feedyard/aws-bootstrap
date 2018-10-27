@@ -12,7 +12,7 @@ executors:
       PREFIX: feedyard
       STATEFILE: bootstrap-cluster.state
       DEFAULT_ENV: test
-      DEFAULT_AWS_ACCOUNT: sandbox
+      DEFAULT_ACCOUNT: sandbox
       DEFAULT_REGION: us-east-1
       DEFAULT_PROFILE: default
       BASH_ENV: local.env
@@ -46,7 +46,7 @@ commands:
       account:
         description: 's3 bucket name'
         type: string
-        default: $DEFAULT_AWS_ACCOUNT
+        default: $DEFAULT_ACCOUNT
       env:
         description: 'infrastructure environment name'
         type: string
@@ -72,7 +72,7 @@ jobs:
       account:
         description: 'short name used to identify aws account. e.g., sandbox, prod'
         type: string
-        default: $DEFAULT_AWS_ACCOUNT
+        default: $DEFAULT_ACCOUNT
       env:
         description: 'infrastructure environment name'
         type: string
@@ -94,7 +94,7 @@ jobs:
       account:
         description: 'short name used to identify aws account. e.g., sandbox, prod'
         type: string
-        default: $DEFAULT_AWS_ACCOUNT
+        default: $DEFAULT_ACCOUNT
       env:
         description: 'infrastructure environment name'
         type: string
