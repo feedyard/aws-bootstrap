@@ -62,7 +62,7 @@ commands:
     steps:
     - run:
         name: put parameter to stdout
-        command: echo bucket: $PREFIX-<< parameter.account >>-tf-state  key: $PIPELINE/<< parameters.env >>/$STATEFILE  region: << parameters.region >>   profile: << parameters.profile >>
+        command: echo bucket= $PREFIX-<< parameter.account >>-tf-state  key= $PIPELINE/<< parameters.env >>/$STATEFILE  region= << parameters.region >>   profile= << parameters.profile >>
 
 jobs:
 
