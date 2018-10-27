@@ -86,6 +86,7 @@ jobs:
     - setup-job
     - setup-backend:
         bucket: << parameters.prefix >>-<< parameters.account >>
+        key: $CIRCLE_WORKING_DIRECTORY/<< parameters.account >>/bootstrap-cluster.state
 
 workflows:
   aws-bootstrap-cluster-pipeline:
