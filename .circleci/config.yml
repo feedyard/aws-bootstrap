@@ -62,7 +62,7 @@ commands:
     steps:
     - run:
         name: put parameter to stdout
-        command: echo bucket= $PREFIX-<< parameter.account >>-tf-state  key= $PIPELINE/<< parameters.env >>/$STATEFILE  region= << parameters.region >>   profile= << parameters.profile >>
+        command: echo $PREFIX-<< parameter.account >>-tf-state $PIPELINE/<< parameters.env >>/$STATEFILE << parameters.region >> << parameters.profile >>
 
 jobs:
 
@@ -103,7 +103,7 @@ jobs:
         description: 'aws region'
         type: string
         default: $DEFAULT_REGION
-      steps:
+    steps:
       - setup-job
       - setup-backend:
           account: << parameters.account >>
