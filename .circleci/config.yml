@@ -36,7 +36,7 @@ commands:
   setup-backend:
     parameters:
       bucket:
-        description: 's3 bucket name prefix and account - the shell script will format as <prefix>-<account>-tf-state'
+        description: 's3 bucket name the shell script will format as <bucket>-tf-state'
         type: string
       key:
         description: 'bucket key, or folder path and filename for tf state file'
@@ -60,22 +60,25 @@ jobs:
     executor: bootstrap-cluster
     parameters:
       prefix:
-        description: 'prefix'
+        description: 'team or product prefix used to identify resources'
         type: string
+        default: $PREFIX
       account:
-        description: 'prefix'
+        description: 'short name used to identify aws account. e.g., sandbox, prod'
         type: string
     steps:
       - setup-job
       - setup-backend:
           bucket: << parameters.prefix >>-<< parameters.account >>
+          key: $CIRCLE_WORKING_DIRECTORY/<< parameters.account >>/bootstrap-cluster.state
 
   terraform-apply:
     executor: bootstrap-cluster
     parameters:
       prefix:
-        description: 'prefix'
+        description: 'team or product prefix used to identify resources'
         type: string
+        default: $PREFIX
       account:
         description: 'short name used to identify aws account. e.g., sandbox, prod'
         type: string
@@ -89,7 +92,6 @@ workflows:
     jobs:
       - terraform-plan:
           name: TEST plan
-          prefix: $PREFIX
           account: $TEST_ACCOUNT
       - approve:
           name: TEST approve
@@ -98,13 +100,11 @@ workflows:
           - TEST plan
       - terraform-apply:
           name: TEST apply
-          prefix: $PREFIX
           account: $TEST_ACCOUNT
           requires:
             - TEST approve
       - terraform-plan:
           name: RUN plan
-          prefix: $PREFIX
           account: $RUN_ACCOUNT
           requires:
             - TEST apply
@@ -115,7 +115,6 @@ workflows:
             - RUN plan
       - terraform-apply:
           name: RUN apply
-          prefix: $PREFIX
           account: $RUN_ACCOUNT
           requires:
             - RUN approve
