@@ -8,11 +8,14 @@ executors:
     docker:
     - image: quay.io/feedyard/circleci-infra-agent
     environment:
-      BASH_ENV: local.env
+      PIPELINE: aws-bootstrap
       PREFIX: feedyard
-      TEST_ACCOUNT: sandbox
-      RUN_ACCOUNT: sandbox
+      STATEFILE: bootstrap-cluster.state
+      DEFAULT_ENV: test
+      DEFAULT_AWS_ACCOUNT: sandbox
       DEFAULT_REGION: us-east-1
+      DEFAULT_PROFILE: default
+      BASH_ENV: local.env
 
 commands:
 
@@ -33,14 +36,21 @@ commands:
   # 3 = aws region
   # 4 = ~/.aws/credentials profile to use
 
+  # by convention the terraform state file naming is bucket/pipeline/environment/filename.state
+  #
+  # bucket = $PREFIX-$AWS_ACCOUNT-tf-state
+  # repo-name = $PIPELINE
+  # filename = $STATEFILE.state
   setup-backend:
     parameters:
-      bucket:
-        description: 's3 bucket name the shell script will format as <bucket>-tf-state'
+      account:
+        description: 's3 bucket name'
         type: string
-      key:
-        description: 'bucket key, or folder path and filename for tf state file'
+        default: $DEFAULT_AWS_ACCOUNT
+      env:
+        description: 'infrastructure environment name'
         type: string
+        default: $DEFAULT_ENV
       region:
         description: 'aws region'
         type: string
@@ -48,52 +58,65 @@ commands:
       profile:
         description: '~/.aws/credentials profile to use. Credentials file setup separately'
         type: string
-        default: 'default'
+        default: $DEFAULT_PROFILE
     steps:
     - run:
         name: put parameter to stdout
-        command: echo << parameters.bucket >> << parameters.key >> << parameters.region >> << parameters.profile >>
+        command: echo bucket: $PREFIX-<< parameter.account >>-tf-state  key: $PIPELINE/<< parameters.env >>/$STATEFILE  region: << parameters.region >>   profile: << parameters.profile >>
 
 jobs:
 
   terraform-plan:
     executor: bootstrap-cluster
     parameters:
-      prefix:
-        description: 'team or product prefix used to identify resources'
-        type: string
-        default: $PREFIX
       account:
         description: 'short name used to identify aws account. e.g., sandbox, prod'
         type: string
+        default: $DEFAULT_AWS_ACCOUNT
+      env:
+        description: 'infrastructure environment name'
+        type: string
+        default: $DEFAULT_ENV
+      region:
+        description: 'aws region'
+        type: string
+        default: $DEFAULT_REGION
     steps:
       - setup-job
       - setup-backend:
-          bucket: << parameters.prefix >>-<< parameters.account >>
-          key: $CIRCLE_WORKING_DIRECTORY/<< parameters.account >>/bootstrap-cluster.state
+          account: << parameters.account >>
+          env: << parameters.env >>
+          region: << parameters.region >>
 
   terraform-apply:
     executor: bootstrap-cluster
     parameters:
-      prefix:
-        description: 'team or product prefix used to identify resources'
-        type: string
-        default: $PREFIX
       account:
         description: 'short name used to identify aws account. e.g., sandbox, prod'
         type: string
-    steps:
-    - setup-job
-    - setup-backend:
-        bucket: << parameters.prefix >>-<< parameters.account >>
-        key: $CIRCLE_WORKING_DIRECTORY/<< parameters.account >>/bootstrap-cluster.state
+        default: $DEFAULT_AWS_ACCOUNT
+      env:
+        description: 'infrastructure environment name'
+        type: string
+        default: $DEFAULT_ENV
+      region:
+        description: 'aws region'
+        type: string
+        default: $DEFAULT_REGION
+      steps:
+      - setup-job
+      - setup-backend:
+          account: << parameters.account >>
+          env: << parameters.env >>
+          region: << parameters.region >>
 
 workflows:
-  aws-bootstrap-cluster-pipeline:
+  aws-bootstrap-pipeline:
     jobs:
       - terraform-plan:
           name: TEST plan
-          account: $TEST_ACCOUNT
+          account: sandbox
+          env: test
       - approve:
           name: TEST approve
           type: approval
@@ -101,12 +124,14 @@ workflows:
           - TEST plan
       - terraform-apply:
           name: TEST apply
-          account: $TEST_ACCOUNT
+          account: sandbox
+          env: test
           requires:
             - TEST approve
       - terraform-plan:
           name: RUN plan
-          account: $RUN_ACCOUNT
+          account: sandbox
+          env: run
           requires:
             - TEST apply
       - approve:
@@ -116,6 +141,7 @@ workflows:
             - RUN plan
       - terraform-apply:
           name: RUN apply
-          account: $RUN_ACCOUNT
+          account: sandbox
+          env: run
           requires:
             - RUN approve

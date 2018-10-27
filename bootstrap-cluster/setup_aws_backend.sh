@@ -18,7 +18,7 @@ if [ $# != 4 ]; then
 fi
 
 cat <<EOF > backend.conf
-bucket="$1-tf-state"
+bucket="$1"
 key="$2"
 region="$3"
 profile="$4"
