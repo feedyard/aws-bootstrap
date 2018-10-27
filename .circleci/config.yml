@@ -62,7 +62,8 @@ commands:
     steps:
     - run:
         name: put parameter to stdout
-        command: bash setup_aws_backend.sh "$PREFIX-<< parameters.account >>-tf-state" "$PIPELINE/<< parameters.env >>/$STATEFILE" "<< parameters.region >>" "<< parameters.profile >>"
+        working_directory: bootstrap-cluster
+        command: bash setup_aws_backend.sh $PREFIX-<< parameters.account >>-tf-state $PIPELINE/<< parameters.env >>/$STATEFILE << parameters.region >> << parameters.profile >>"
 
 jobs:
 
