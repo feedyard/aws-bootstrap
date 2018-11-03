@@ -79,7 +79,7 @@ commands:
       - run:
           name: write ~/.aws/credentials
           working_directory: bootstrap-cluster
-          command: base setup_aws_credentials.sh << parameters.access-id >> << parameters.secret-key >> << parameters.region >> << parameters.assume-role >>
+          command: bash setup_aws_credentials.sh << parameters.access-id >> << parameters.secret-key >> << parameters.region >> << parameters.assume-role >>
 
 jobs:
 
