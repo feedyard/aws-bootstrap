@@ -122,7 +122,7 @@ jobs:
           account: << parameters.account >>
           env: << parameters.env >>
           region: << parameters.region >>
-      - setup_credentials:
+      - setup-credentials:
           access-id: << parameters.access-id >>
           secret-key: << parameters.secret-key >>
           region: << parameters.region >>
