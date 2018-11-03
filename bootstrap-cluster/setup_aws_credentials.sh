@@ -12,7 +12,7 @@
 set -euo pipefail
 
 # add check for valid number of parameters
-if [ $# != 4 ]
+if [ $# != 4 ]; then
     echo "error: setup_aws_credentials.sh: incorrect number of parameters $#"
     exit 1
 fi
