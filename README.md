@@ -69,7 +69,7 @@ could be something self-managed elsewhere in the enterprise but available/approp
 Where the bootstrap process requires aws based compute from which to run a pipeline tool or event merely agents, and  
 where there are opportunities to use early-deployed services to limit re-work such as Hashicorp's Vault, the  
 bootstrap-cluster in this reference provides a demo of how EKS can be used for this somewhat ephemeral environment.  
-Example uses circleci orchestration.
+Example uses circleci orchestration.  
 
 ### Requirements
 

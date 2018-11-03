@@ -1,23 +1,20 @@
 #!/usr/bin/env bash
 #
+# setup_aws_credentials.sh
+# v2.0.0
+#
 # input params
-# 1 = aws access key id for the pipeline service account identity (required)
-# 2 = aws secret access key for the pipeline service account identity (required)
-# 3 = aws region (required)
-# 4 = aws role to assume (optional)
+# 1 = aws access key id for the pipeline service account identity
+# 2 = aws secret access key for the pipeline service account identity
+# 3 = aws region
+# 4 = aws role to assume
 
 set -euo pipefail
 
 # add check for valid number of parameters
-if [ $# == 0 ] || [ $# == 2 ] || [ $# -gt 4 ]; then
-    echo "error: setup_credentials.sh: incorrect number of parameters $#"
+if [ $# != 4 ]
+    echo "error: setup_aws_credentials.sh: incorrect number of parameters $#"
     exit 1
-fi
-
-# add 'version' as a parameter to validate the version of this script being used
-if [ $1 == "version" ]; then
-    echo "1.2.1"
-    exit 0
 fi
 
 mkdir -p ~/.aws
@@ -29,7 +26,7 @@ aws_secret_access_key=$2
 region=$3
 EOF
 
-if [ $# == 4 ] && [ $4 != "none" ]; then
+if [ $4 != "none" ]; then
     TMP="$(aws sts assume-role --output json --role-arn ${4} --role-session-name $CIRCLE_PROJECT_REPONAME || { echo 'sts failure!' ; exit 1; })"
 
     ACCESS_KEY=$(echo $TMP | jq -r ".Credentials.AccessKeyId")
@@ -45,6 +42,3 @@ aws_session_token=${SESSION_TOKEN}
 region=$3
 EOF
 fi
-
-
-# && [ $4 != "none" ]
