@@ -8,6 +8,7 @@ executors:
     docker:
     - image: quay.io/feedyard/circleci-infra-agent
     environment:
+      BASH_ENV: local.env
       PIPELINE: aws-bootstrap
       PREFIX: feedyard
       STATEFILE: bootstrap-cluster.state
@@ -15,7 +16,6 @@ executors:
       DEFAULT_ACCOUNT: sandbox
       DEFAULT_REGION: us-east-1
       DEFAULT_PROFILE: default
-      BASH_ENV: local.env
 
 commands:
 
