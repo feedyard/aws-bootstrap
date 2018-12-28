@@ -9,4 +9,3 @@ terraform.tfstate.d
 *.pem
 
 backend.conf
-bootstrap.json
