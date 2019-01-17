@@ -6,7 +6,7 @@ executors:
   bootstrap-cluster:
     working_directory: ~/aws-bootstrap
     docker:
-    - image: quay.io/feedyard/circleci-infra-agent
+      - image: quay.io/feedyard/circleci-infra-agent
     environment:
       BASH_ENV: local.env
       PIPELINE: aws-bootstrap
@@ -21,14 +21,14 @@ commands:
 
   setup-job:
     steps:
-    - checkout
-    - setup_remote_docker
-    - run:
-        name: confirm Docker engine running
-        command: docker info
-    - run:
-        name: decrypt secrets
-        command: invoke dec
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: confirm Docker engine running
+          command: docker info
+      - run:
+          name: decrypt secrets
+          command: invoke dec
 
   setup-backend:
     parameters:
@@ -139,7 +139,7 @@ jobs:
           steps:
             - run:
                 name: terraform apply
-                working_directory:  bootstrap-cluster
+                working_directory: bootstrap-cluster
                 command: echo 'terraform apply'
 
 workflows:
@@ -156,7 +156,7 @@ workflows:
           name: approve plan of test environment
           type: approval
           requires:
-          - plan of test environment
+            - plan of test environment
       - terraform:
           name: apply plan to test environment
           apply: true

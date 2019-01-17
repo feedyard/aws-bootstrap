@@ -1,14 +1,13 @@
 # feedyard/aws-bootstrap
-A minimal bootstrap configuration must occur to support an IaC process for managing aws state.  
 
-With bootstrap access keys available, and assuming the configuration tools (terraform, kops, etc) maintain aws state files,  
-then the only bootstrap setup really needed is encrypted S3 buckets for state information. (see below for additional bootstrap  
+Generally, the minimal bootstrap configuration needed to support an IaC process for managing aws infrastructure and  
+services is encrypted S3 buckets for state information. (see below for additional bootstrap  
 config for self managed pipelines.) The bootstrap state storage step is run from the infrastructure developer's laptop.  
-
 
 ## usage
 
-Clone the repo, create a python virtual environment and confirm requirements are installed (see local dependencies below).  
+Clone the repo, create a python virtual environment and confirm requirements are installed (see local dependencies  
+below). Remove tf state file related names from .gitignore to store tf state with the repo.
 
 ### aws account bootstrap identity and short name
 
@@ -19,7 +18,7 @@ platform lifecycle.
 
 ### bootstrap the secure s3 buckets
 
-In the local repo, create a file _bootstrap_vars.json_ in the following format. 
+In the local repo, create a file _bootstrap.json_ in the following format. 
 
 ```json
 {
@@ -43,30 +42,26 @@ _note_:  s3 unique naming requirements apply.
 
 Now change to the `secure-state-storage` directory. Use the following Invoke commands to provision the s3 buckets.
 
-
 `$ invoke new`  
-Initialize and create terraform workspaces for each of the accounts in the bootstrap_vars.json file. Local tfstate files  
+Initialize and create terraform workspaces for each of the accounts in the bootstrap.json file. Local tfstate files  
 are used for this bootstrap process. Be sure to add future work to your backlog to move these state files to a secure  
 backup location. This initial bootstrap will not generally be repeated but the state file information can be used to  
-automate activities if necessary.
+automate activities if necessary.  
 
 `$ invoke deploy`  
 Creates an s3 state bucket using the above naming convention in each of the respective accounts. For each bucket, server-  
-side encryption and object versioning is active.    
-
+side encryption and object versioning is active.   
 
 When needed, there is a destroy command that will fully remove the buckets using the tfstate information. See tasks.py  
-for more understanding.   
+for more understanding.  
 
-### bootstrap-cluster pipeline
+### bootstrap-cluster pipeline (**work in progress**)
 
-#### external pattern
-The external pattern assumes the use of a pipeline orchestration tool already available and maintained separately from
-the infrastructure team that owns this platform product. CircleCi.com is an example of a vendor provided product, or it
-could be something self-managed elsewhere in the enterprise but available/appropriate to the needs of this team.
+The recommended pattern assumes the use of a SaaS provided pipeline orchestration tool, already available and maintained  
+separately from the infrastructure team that owns this platform product. CircleCi.com is an example of a vendor provided  
+product.
 
-#### internal pattern
-Where the bootstrap process requires aws based compute from which to run a pipeline tool or event merely agents, and  
+Where the bootstrap process requires aws based compute from which to run a pipeline tool or just pipeline agents, or  
 where there are opportunities to use early-deployed services to limit re-work such as Hashicorp's Vault, the  
 bootstrap-cluster in this reference provides a demo of how EKS can be used for this somewhat ephemeral environment.  
 Example uses circleci orchestration.  
@@ -82,11 +77,11 @@ the infrastructure pipelines, these bootstrap service accounts can be deactivate
 
 Example:  for each aws account
 
-Create iam group 'BootstrapGroup' with AdministratorAccess
-Create iam user '<organization>.<account>.bootstrap', add to the BootstrapGroup, and generate access keys 
+Create iam group 'BootstrapGroup' with AdministratorAccess.  
+Create iam user '<organization>.<account>.bootstrap', add to the BootstrapGroup, and generate access keys.  
 
 This initial, minimal configuration of newly created AWS accounts requires the above bootstrap ids and secrets to be  
-available locally in standard ~/.aws configuration files. Use of an AWS key management tool such as `aws-vault` is recommended.
+available locally in standard ~/.aws configuration files.  
 
 #### local dependencies
 

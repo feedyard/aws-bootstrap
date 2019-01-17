@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= 0.11.10"
+  required_version = ">= 0.11.11"
 }
 
 provider "aws" {
@@ -16,4 +16,7 @@ variable "aws_region" {}
 variable "profile" {}
 variable "account" {}
 variable "prefix" {}
-variable "enable_key_rotation" { default = "True" }
+
+variable "enable_key_rotation" {
+  default = "True"
+}

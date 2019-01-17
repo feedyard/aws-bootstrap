@@ -1,26 +1,15 @@
-from invoke import task
+"""invoke commands for feedyard/bootstrap-aws"""
 from pathlib import Path
 import sys
-import os
-import boto3, botocore
 import json
+import boto3
+from invoke import task
 
 BOOTSTRAP_CONFIG_FILE = './bootstrap.json'
 
-# uses prefix and account name from bootstrap config file to construct bucket name
-# example: feedyard-sandbox-state
-bucket_name = '{}-{}-tf-state'
-
 @task
-def enc(ctx, file='local.env', encoded_file='env.ci'):
-    ctx.run("openssl aes-256-cbc -e -in {} -out {} -k $FEEDYARD_PIPELINE_KEY".format(file, encoded_file))
-
-@task
-def dec(ctx, encoded_file='env.ci', file='local.env'):
-    ctx.run("openssl aes-256-cbc -d -in {} -out {} -k $FEEDYARD_PIPELINE_KEY".format(encoded_file, file))
-
-@task
-def listbuckets(ctx):
+def listbuckets(_ctx):
+    """List all s3 buckets in the aws accounts defined in bootstrap.json"""
     config = load_config(Path(BOOTSTRAP_CONFIG_FILE))
     for profile in config['accounts']:
         print('buckets in account: {}'.format(profile))
@@ -29,9 +18,18 @@ def listbuckets(ctx):
         print("\t%s" % buckets)
 
 
+@task
+def validate(ctx):
+    """style and lint tests"""
+    ctx.run('yamllint .')
+    ctx.run('terraform fmt -check .')
+    ctx.run('rubocop')
+    ctx.run('pylint tasks.py')
+    ctx.run('pylint secure-state-storage/tasks.py')
+
 def load_config(config_file):
+    """Load bootstrap.json config file, defines aws accounts and access profiles."""
     if config_file.is_file():
         return json.loads(open(config_file).read())
-    else:
-        print ('missing {} file.'.format(config_file))
-        sys.exit(1)
+    print('missing {} file.'.format(config_file))
+    sys.exit(1)

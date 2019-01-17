@@ -5,7 +5,7 @@ module "state_bucket" {
   enable_key_rotation = "${var.enable_key_rotation}"
 
   tags = {
-    "pipeline" = "aws-bootstrap/secure-state-store"
+    "pipeline"             = "aws-bootstrap/secure-state-store"
     "location-of-tf-state" = "tf state s3 stores created as part of bootstrap process are maintained in bootstrap repo"
   }
 }
