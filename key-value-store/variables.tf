@@ -4,6 +4,13 @@ terraform {
     aws = "~> 2.15"
     random = "~> 2.0"
   }
+  backend "remote" {
+    hostname = "app.terraform.io"
+    organization = "feedyard"
+    workspaces {
+      name = "boostrap-aws_${var.environment}"
+    }
+  }
 }
 
 # for
@@ -13,7 +20,7 @@ provider "aws" {
 }
 
 
-variable "account" {}
+variable "environment" {}
 variable "aws_region" {}
 variable "prefix" {}
 

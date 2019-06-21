@@ -1,3 +1,4 @@
 invoke
 boto3
-pylint
+auth0-python
+requests

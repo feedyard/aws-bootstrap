@@ -1,13 +1,57 @@
 # feedyard/aws-bootstrap
 
-Generally, the minimal bootstrap configuration needed to support an IaC process for managing aws infrastructure and  
-services is encrypted S3 buckets for state information. (see below for additional bootstrap  
-config for self managed pipelines.) The bootstrap state storage step is run from the infrastructure developer's laptop.  
+Assumptions: use of AWS Organization with a master/sub-account relationship structure.  
+  
+## cloud-native approach
 
-## usage
+Cloud based tools that encourage development practices that sustain software-defined infrastructure and loose coupling,  
+while significantly accelerating cloud native adoption. (used throughout these resources. _see SaaS selection models_)  
 
-Clone the repo, create a python virtual environment and confirm requirements are installed (see local dependencies  
-below). Remove tf state file related names from .gitignore to store tf state with the repo.
+
+| category                | vendor                                  |
+|-------------------------|-----------------------------------------|
+| source version control  | [GitHub](https://github.com)            |
+| pipeline orchestration  | [CircleCI](https://circleci.com)        |
+| container registry      | [Quay](https://quay.io)                 |
+| terraform state storage | [Terraform Cloud](https://terraform.io) |
+
+## minimal aws bootstrap
+
+__assumption__ any type of bootstrap example always begins from some set of minimal assumptions.  For the feedyard aws  
+bootstrap examples, it is assumed that an Organization master account with 4 member accounts has been created, and that  
+a set of bootstrap credentials exists in the Master account which can assume any necessary permissions in the member  
+accounts.  
+
+Although feedyard IaC examples assume the use of Hashicorp's Vault and Consul for retrieval of secrets and environmental  
+config values, in a greenfield setting these services are not yet available. Even when deployed, there will remain the  
+operational concern of infrastructure recovery in situations where the primary secret and config service is unavailable.  
+
+To facilitate these recovery concerns and provide such services during bootstrap, AWS Secrets Manager is used for storing  
+and retrieving secure information and s3 is used as a configuration key/value store.
+
+If you are able to make use of the above SaaS offerings, then you only need the programmatic access keys from the master  
+account to proceed.
+
+*s3 as a key/value store*  
+
+
+
+[AWS-IAM only example](https://github.com/feedyard/baseline-aws-auth-iam-only)  
+[AWS idp integration example](https://github.com/feedyard/baseline-aws-auth-idp)
+
+
+
+### alternative tf_state situations
+
+Without using a service such as Terraform Cloud, you will need an encrypted S3 bucket in the master account that will  
+maintain much of the terraform state file storage. 
+
+
+```bash
+$ inv deploy.statebucket
+```
+
+
 
 ### aws account bootstrap identity and short name
 
@@ -65,33 +109,4 @@ Where the bootstrap process requires aws based compute from which to run a pipel
 where there are opportunities to use early-deployed services to limit re-work such as Hashicorp's Vault, the  
 bootstrap-cluster in this reference provides a demo of how EKS can be used for this somewhat ephemeral environment.  
 Example uses circleci orchestration.  
-
-### Requirements
-
-#### AWS access credentials  
-
-A bootstrap process is a means of dealing with the natural 'chicken & egg' problem in fully automating the configuration  
-of IaaS resources. The _bootstrap_ examples in feedyard assume that access key ids and secret keys have been manually  
-created in each account used in the bootstrap process or pipelines. Once the profiles and roles have been defined in  
-the infrastructure pipelines, these bootstrap service accounts can be deactivated and maintained for DR events.  
-
-Example:  for each aws account
-
-Create iam group 'BootstrapGroup' with AdministratorAccess.  
-Create iam user '<organization>.<account>.bootstrap', add to the BootstrapGroup, and generate access keys.  
-
-This initial, minimal configuration of newly created AWS accounts requires the above bootstrap ids and secrets to be  
-available locally in standard ~/.aws configuration files.  
-
-#### local dependencies
-
-terraform  
-
-python3  
-  pkg: invoke, boto3, aws-cli  
-  
-ruby (>= 2.5.0)  
-  gem: awspec  
-  
-review `prereqs.sh` to install local dependencies.  
 

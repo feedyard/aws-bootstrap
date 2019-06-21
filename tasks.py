@@ -7,15 +7,7 @@ from invoke import task
 
 BOOTSTRAP_CONFIG_FILE = './bootstrap.json'
 
-@task
-def listbuckets(_ctx):
-    """List all s3 buckets in the aws accounts defined in bootstrap.json"""
-    config = load_config(Path(BOOTSTRAP_CONFIG_FILE))
-    for profile in config['accounts']:
-        print('buckets in account: {}'.format(profile))
-        s3 = boto3.Session(profile_name=config['accounts'][profile]).client('s3')
-        buckets = [bucket['Name'] for bucket in s3.list_buckets()['Buckets']]
-        print("\t%s" % buckets)
+
 
 
 @task
