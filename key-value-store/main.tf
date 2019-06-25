@@ -1,4 +1,4 @@
-# s3 bucket used and bootstrap and baseline-recover environment config key/value store
+# s3 bucket used and bootstrap and baseline-recover environment config key/value store 
 module "key_value_store" {
   source = "github.com/feedyard/tf-aws-state-bucket?ref=1.0.0"
 
