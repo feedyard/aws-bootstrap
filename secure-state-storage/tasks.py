@@ -6,14 +6,14 @@ import json
 import boto3
 from invoke import task
 
-BOOTSTRAP_CONFIG_FILE = 'bootstrap.json'
+BOOTSTRAP_CONFIG_FILE = 'profile.json'
 ARGS = 'TF_VAR_aws_region={} TF_VAR_profile={} TF_VAR_account={} TF_VAR_prefix={} '
 
 @task
 def new(ctx):
     """Initialize and create workspaces"""
     response = input('Initialize terraform modules and create workspace for each account.\n\n' \
-                     'Required: Create a bootstrap.json file listing the aws accounts to be managed.\n' \
+                     'Required: Create a profile.json file listing the aws accounts to be managed.\n' \
                      'You must respond with YES to proceed.\n' \
                      'Are you sure?')
 
@@ -79,7 +79,7 @@ def destroy(ctx):
 
 @task
 def listbuckets(_ctx):
-    """List all s3 buckets in the aws accounts defined in bootstrap.json"""
+    """List all s3 buckets in the aws accounts defined in profile.json"""
     config = load_config(Path(BOOTSTRAP_CONFIG_FILE))
     for profile in config['accounts']:
         print('buckets in account: {}'.format(profile))
@@ -88,7 +88,7 @@ def listbuckets(_ctx):
         print("\t%s" % buckets)
 
 def load_config(config_file):
-    """Load bootstrap.json config file, defines aws accounts and access profiles."""
+    """Load profile.json config file, defines aws accounts and access profiles."""
     if config_file.is_file():
         return json.loads(open(config_file).read())
     print('missing {} file.'.format(config_file))

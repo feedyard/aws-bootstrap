@@ -18,8 +18,9 @@ while significantly accelerating cloud native adoption. (used throughout these r
 ## minimal aws bootstrap
 
 __assumption__ any type of bootstrap example always begins from some set of minimal assumptions.  For the feedyard aws  
-bootstrap examples, it is assumed that an Organization master account with 4 member accounts has been created, and that  
-a set of bootstrap credentials exists in the Master account which can assume any necessary permissions in the member  
+bootstrap examples, it is assumed that an Organization master account with 4 member accounts has been created, and the  
+individual members of the team that will be maintaining the Platform product have added to the master account. At that  
+point, a set of bootstrap credentials exists in the Master account which can assume any necessary permissions in the member  
 accounts.  
 
 Although feedyard IaC examples assume the use of Hashicorp's Vault and Consul for retrieval of secrets and environmental  

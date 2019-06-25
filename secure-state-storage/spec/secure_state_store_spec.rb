@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-config = JSON.parse(File.read('../bootstrap.json'))
+config = JSON.parse(File.read('../profile.json'))
 
 describe s3_bucket(config['prefix'] + '-' + ENV['PROFILE'] + '-tf-state') do
   it { should exist }

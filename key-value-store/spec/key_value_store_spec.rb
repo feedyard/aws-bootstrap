@@ -3,7 +3,7 @@
 require 'json'
 require 'awspec'
 
-config = JSON.parse(File.read('../bootstrap.json'))
+config = JSON.parse(File.read('../profile.json'))
 
 describe s3_bucket(config['prefix'] + '-key-value-store') do
   it { should exist }
