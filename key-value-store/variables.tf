@@ -8,7 +8,7 @@ terraform {
     hostname = "app.terraform.io"
     organization = "feedyard"
     workspaces {
-      name = "boostrap-aws_${var.environment}"
+      prefix = "boostrap-aws-"
     }
   }
 }

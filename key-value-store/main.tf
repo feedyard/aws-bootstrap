@@ -7,6 +7,6 @@ module "key_value_store" {
 
   tags = {
     "pipeline"             = "bootstrap-aws/key-value-store"
-    "location-of-tf-state" = "app.terraform.io/${var.prefix}"
+    "location-of-tf-state" = "app.terraform.io/${var.prefix}/boostrap-aws-${var.environment}"
   }
 }

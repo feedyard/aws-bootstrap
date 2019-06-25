@@ -1,5 +1,5 @@
 {
   "prefix": "feedyard",
   "region": "us-east-1",
-  "environment": "bootstrap"
+  "environment": "profile"
 }
