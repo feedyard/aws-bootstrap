@@ -125,11 +125,11 @@ resource "aws_iam_role" "access-bootstrap-key-value-store" {
 data "aws_iam_policy_document" "access-key-value-store-policy-document" {
   statement {
     actions = [
-      "s3:s3:ListBucket",
+      "s3:ListBucket",
       "s3:GetBucketLocation",
     ]
     resources = [
-      "arn:aws:s3:::${aws_s3_bucket.key-value-store.arn}"
+      "arn:aws:s3:::${var.prefix}-key-value-store"
     ]
   }
   statement {
@@ -139,7 +139,7 @@ data "aws_iam_policy_document" "access-key-value-store-policy-document" {
       "s3:DeleteObject"
     ]
     resources = [
-      "arn:aws:s3:::${aws_s3_bucket.key-value-store.arn}/*"
+      "arn:aws:s3:::${var.prefix}-key-value-store/*"
     ]
   }
 }
