@@ -1,40 +1,8 @@
 # s3 bucket used as bootstrap and baseline-recover environment config key/value store
 resource "aws_s3_bucket" "key-value-store" {
-  bucket = "${var.prefix}-key-value-store"
+  bucket = "${local.bucket-name}"
   acl    = "private"
-
-  policy = <<EOF
-{
-  "Version": "2008-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "AWS": "${aws_iam_role.access-bootstrap-key-value-store.arn}",
-        "AWS": "${var.aws_role}"
-      },
-      "Action": [
-        "s3:ListBucket",
-        "s3:GetBucketLocation"
-      ],
-      "Resource": "arn:aws:s3:::${var.prefix}-key-value-store"
-    },
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "AWS": "${aws_iam_role.access-bootstrap-key-value-store.arn}",
-        "AWS": "${var.aws_role}"
-      },
-      "Action": [
-        "s3:PutObject",
-        "s3:GetObject",
-        "s3:DeleteObject"
-      ],
-      "Resource": "arn:aws:s3:::${var.prefix}-key-value-store/*"
-    }
-  ]
-}
-EOF
+  policy = "${data.aws_iam_policy_document.key-value-store-policy-document.json}"
 
   versioning {
     enabled = "true"
@@ -53,8 +21,6 @@ EOF
     "pipeline"             = "bootstrap-aws/key-value-store"
     "location-of-tf-state" = "app.terraform.io/${var.prefix}/boostrap-aws-${var.environment}"
   }
-
-  depends_on = ["aws_iam_role.access-bootstrap-key-value-store"]
 }
 
 resource "aws_kms_key" "key-value-store-kms-key" {
@@ -80,45 +46,45 @@ resource "aws_s3_bucket_public_access_block" "mod" {
   block_public_policy = true
 }
 
-//data "aws_iam_policy_document" "key-value-store-policy-document" {
-//  statement {
-//    principals {
-//      type        = "AWS"
-//      identifiers = [
-//        "${aws_iam_role.access-bootstrap-key-value-store.arn}",
-//        "${var.aws_role}"
-//      ]
-//    }
-//    actions = [
-//      "s3:ListBucket",
-//      "s3:GetBucketLocation",
-//    ]
-//    resources = [
-//      "arn:aws:s3:::${aws_s3_bucket.key-value-store.bucket}"
-//    ]
-//  }
-//  statement {
-//    principals {
-//      type        = "AWS"
-//      identifiers = [
-//        "${aws_iam_role.access-bootstrap-key-value-store.arn}",
-//        "${var.aws_role}"
-//      ]
-//    }
-//    actions = [
-//      "s3:PutObject",
-//      "s3:GetObject",
-//      "s3:DeleteObject"
-//    ]
-//    resources = [
-//      "arn:aws:s3:::${aws_s3_bucket.key-value-store.bucket}/*"
-//    ]
-//  }
-//}
+data "aws_iam_policy_document" "key-value-store-policy-document" {
+  statement {
+    principals {
+      type        = "AWS"
+      identifiers = [
+        "${aws_iam_role.access-bootstrap-key-value-store.arn}",
+        "${var.aws_role}"
+      ]
+    }
+    actions = [
+      "s3:ListBucket",
+      "s3:GetBucketLocation",
+    ]
+    resources = [
+      "arn:aws:s3:::${local.bucket-name}"
+    ]
+  }
+  statement {
+    principals {
+      type        = "AWS"
+      identifiers = [
+        "${aws_iam_role.access-bootstrap-key-value-store.arn}",
+        "${var.aws_role}"
+      ]
+    }
+    actions = [
+      "s3:PutObject",
+      "s3:GetObject",
+      "s3:DeleteObject"
+    ]
+    resources = [
+      "arn:aws:s3:::${local.bucket-name}/*"
+    ]
+  }
+}
 
 # profile account role for accessing the bootstrap key/value store
 resource "aws_iam_role" "access-bootstrap-key-value-store" {
-  name               = "AccessBootstrapKeyValueStore"
+  name               = "AccessBootstrapKeyValueStoreRole"
   assume_role_policy = "${data.aws_iam_policy_document.access-key-value-store-policy-document.json}"
 }
 
@@ -129,7 +95,7 @@ data "aws_iam_policy_document" "access-key-value-store-policy-document" {
       "s3:GetBucketLocation",
     ]
     resources = [
-      "arn:aws:s3:::${var.prefix}-key-value-store"
+      "arn:aws:s3:::${local.bucket-name}"
     ]
   }
   statement {
@@ -139,7 +105,7 @@ data "aws_iam_policy_document" "access-key-value-store-policy-document" {
       "s3:DeleteObject"
     ]
     resources = [
-      "arn:aws:s3:::${var.prefix}-key-value-store/*"
+      "arn:aws:s3:::${local.bucket-name}/*"
     ]
   }
 }

@@ -27,3 +27,7 @@ variable "prefix" {}
 variable "environment" {}
 variable "aws_role" {}
 variable "aws_region" {}
+
+locals {
+  bucket-name = "${var.prefix}-key-value-store"
+}
