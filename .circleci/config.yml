@@ -20,5 +20,32 @@ workflows:
           terraform-cloud-token: $TERRAFORM_CLOUD_TOKEN
           context: infra-pipeline
           working-directory: key-value-store
+      - approve-plan-key-value-store:
+          type: approval
+          requires:
+            - plan-key-value-store
+      - terraform/aws:
+          name: apply-key-value-store
+          apply-step: true
+          env: profile
+          aws-role: $AWS_ROLE_PROFILE
+          aws-region: us-east-1
+          encoded-file: environment.bin
+          use-provider-role: true
+          terraform-cloud-token: $TERRAFORM_CLOUD_TOKEN
+          context: infra-pipeline
+          working-directory: key-value-store
+          after-terrform:
+            - run:
+                name: awspec test key/value store configuration
+                command: rspec spec/key_value_store_spec.rb
+          requires:
+            - approve-plan-key-value-store
+
 
   # for use with bootstrap-cluster
+  name: use inspec to validate aws configuration
+    working_directory: test/fixture
+    environment:
+      PLATFORM_ENV: ci
+    command: inspec exec ../integration/default/tf_aws_state_bucket_spec.rb -t aws://
