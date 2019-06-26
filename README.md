@@ -19,9 +19,9 @@ while significantly accelerating cloud native adoption. (used throughout these r
 
 __assumption__ any type of bootstrap example always begins from some set of minimal assumptions.  For the feedyard aws  
 bootstrap examples, it is assumed that an Organization master account with 4 member accounts has been created, and the  
-individual members of the team that will be maintaining the Platform product have added to the master account. At that  
-point, a set of bootstrap credentials exists in the Master account which can assume any necessary permissions in the member  
-accounts.  
+individual members of the team that will be maintaining the Platform product have added to a group in the master account  
+that includes a role with admin permissions in each of the member accounts, and a set of bootstrap credentials exists  
+in the Master account with similar permissions in the member accounts. The role ARN is used in the configuration.   
 
 Although feedyard IaC examples assume the use of Hashicorp's Vault and Consul for retrieval of secrets and environmental  
 config values, in a greenfield setting these services are not yet available. Even when deployed, there will remain the  

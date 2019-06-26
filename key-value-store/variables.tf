@@ -27,7 +27,3 @@ variable "prefix" {}
 variable "environment" {}
 variable "aws_role" {}
 variable "aws_region" {}
-
-variable "enable_key_rotation" {
-  default = true
-}
