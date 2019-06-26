@@ -20,5 +20,5 @@ workflows:
           terraform-cloud-token: $TERRAFORM_CLOUD_TOKEN
           context: infra-pipeline
           working-directory: key-value-store
-          
+
   # for use with bootstrap-cluster
