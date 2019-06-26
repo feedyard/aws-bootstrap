@@ -35,7 +35,7 @@ workflows:
           terraform-cloud-token: $TERRAFORM_CLOUD_TOKEN
           context: infra-pipeline
           working-directory: key-value-store
-          after-terrform:
+          after-terraform:
             - run:
                 name: awspec test key/value store configuration
                 command: rspec key-value-store/spec/key_value_store_spec.rb
