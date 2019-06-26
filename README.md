@@ -35,7 +35,6 @@ account to proceed.
 
 *s3 as a key/value store*  
 
-
 [AWS-IAM only example](https://github.com/feedyard/baseline-aws-auth-iam-only)  
 [AWS idp integration example](https://github.com/feedyard/baseline-aws-auth-idp)
 
