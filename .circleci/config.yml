@@ -38,15 +38,6 @@ workflows:
           after-terrform:
             - run:
                 name: awspec test key/value store configuration
-                working_directory: key-value-store
-                command: rspec spec/key_value_store_spec.rb
+                command: rspec key-value-store/spec/key_value_store_spec.rb
           requires:
             - approve-plan-key-value-store
-
-
-  # for use with bootstrap-cluster
-  name: use inspec to validate aws configuration
-    working_directory: test/fixture
-    environment:
-      PLATFORM_ENV: ci
-    command: inspec exec ../integration/default/tf_aws_state_bucket_spec.rb -t aws://
