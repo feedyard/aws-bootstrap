@@ -15,7 +15,7 @@ workflows:
           aws-role: $AWS_ROLE_PROFILE
           aws-region: us-east-1
           encoded-file: environment.bin
-          terraform-cloud-token: TERRAFORM_CLOUD_TOKEN
+          terraform-cloud-token: $TERRAFORM_CLOUD_TOKEN
           working-directory: key-value-store
           env: profile
 
