@@ -2,7 +2,39 @@
 resource "aws_s3_bucket" "key-value-store" {
   bucket = "${var.prefix}-key-value-store"
   acl    = "private"
-  policy = "${data.aws_iam_policy_document.key-value-store-policy-document.json}"
+
+  policy = <<EOF
+{
+  "Version": "2008-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "${aws_iam_role.access-bootstrap-key-value-store.arn}",
+        "AWS": "${var.aws_role}"
+      },
+      "Action": [
+        "s3:ListBucket",
+        "s3:GetBucketLocation"
+      ],
+      "Resource": "arn:aws:s3:::${var.prefix}-key-value-store"
+    },
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "${aws_iam_role.access-bootstrap-key-value-store.arn}",
+        "AWS": "${var.aws_role}"
+      },
+      "Action": [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:DeleteObject"
+      ],
+      "Resource": "arn:aws:s3:::${var.prefix}-key-value-store/*"
+    }
+  ]
+}
+EOF
 
   versioning {
     enabled = "true"
@@ -22,7 +54,7 @@ resource "aws_s3_bucket" "key-value-store" {
     "location-of-tf-state" = "app.terraform.io/${var.prefix}/boostrap-aws-${var.environment}"
   }
 
-  depends_on = ["data.aws_iam_policy_document.key-value-store-policy-document"]
+  depends_on = ["aws_iam_role.access-bootstrap-key-value-store"]
 }
 
 resource "aws_kms_key" "key-value-store-kms-key" {
@@ -48,41 +80,41 @@ resource "aws_s3_bucket_public_access_block" "mod" {
   block_public_policy = true
 }
 
-data "aws_iam_policy_document" "key-value-store-policy-document" {
-  statement {
-    principals {
-      type        = "AWS"
-      identifiers = [
-        "${aws_iam_role.access-bootstrap-key-value-store.arn}",
-        "${var.aws_role}"
-      ]
-    }
-    actions = [
-      "s3:s3:ListBucket",
-      "s3:GetBucketLocation",
-    ]
-    resources = [
-      "arn:aws:s3:::${aws_s3_bucket.key-value-store.bucket}"
-    ]
-  }
-  statement {
-    principals {
-      type        = "AWS"
-      identifiers = [
-        "${aws_iam_role.access-bootstrap-key-value-store.arn}",
-        "${var.aws_role}"
-      ]
-    }
-    actions = [
-      "s3:PutObject",
-      "s3:GetObject",
-      "s3:DeleteObject"
-    ]
-    resources = [
-      "arn:aws:s3:::${aws_s3_bucket.key-value-store.bucket}/*"
-    ]
-  }
-}
+//data "aws_iam_policy_document" "key-value-store-policy-document" {
+//  statement {
+//    principals {
+//      type        = "AWS"
+//      identifiers = [
+//        "${aws_iam_role.access-bootstrap-key-value-store.arn}",
+//        "${var.aws_role}"
+//      ]
+//    }
+//    actions = [
+//      "s3:ListBucket",
+//      "s3:GetBucketLocation",
+//    ]
+//    resources = [
+//      "arn:aws:s3:::${aws_s3_bucket.key-value-store.bucket}"
+//    ]
+//  }
+//  statement {
+//    principals {
+//      type        = "AWS"
+//      identifiers = [
+//        "${aws_iam_role.access-bootstrap-key-value-store.arn}",
+//        "${var.aws_role}"
+//      ]
+//    }
+//    actions = [
+//      "s3:PutObject",
+//      "s3:GetObject",
+//      "s3:DeleteObject"
+//    ]
+//    resources = [
+//      "arn:aws:s3:::${aws_s3_bucket.key-value-store.bucket}/*"
+//    ]
+//  }
+//}
 
 # profile account role for accessing the bootstrap key/value store
 resource "aws_iam_role" "access-bootstrap-key-value-store" {
