@@ -21,6 +21,8 @@ resource "aws_s3_bucket" "key-value-store" {
     "pipeline"             = "bootstrap-aws/key-value-store"
     "location-of-tf-state" = "app.terraform.io/${var.prefix}/boostrap-aws-${var.environment}"
   }
+
+  depends_on = ["data.aws_iam_policy_document.key-value-store-policy-document"]
 }
 
 resource "aws_kms_key" "key-value-store-kms-key" {
@@ -60,7 +62,7 @@ data "aws_iam_policy_document" "key-value-store-policy-document" {
       "s3:GetBucketLocation",
     ]
     resources = [
-      "arn:aws:s3:::${aws_s3_bucket.key-value-store.arn}"
+      "arn:aws:s3:::${aws_s3_bucket.key-value-store.bucket}"
     ]
   }
   statement {
@@ -77,7 +79,7 @@ data "aws_iam_policy_document" "key-value-store-policy-document" {
       "s3:DeleteObject"
     ]
     resources = [
-      "arn:aws:s3:::${aws_s3_bucket.key-value-store.arn}/*"
+      "arn:aws:s3:::${aws_s3_bucket.key-value-store.bucket}/*"
     ]
   }
 }
