@@ -9,15 +9,16 @@ workflows:
 
   bootstrap-aws-key-value-store:
     jobs:
-      - terraform/plan:
+      - terraform/aws:
           name: plan-key-value-store
-          context: infra-pipeline
+          plan-step: true
+          env: profile
           aws-role: $AWS_ROLE_PROFILE
           aws-region: us-east-1
           encoded-file: environment.bin
           use-provider-role: true
           terraform-cloud-token: $TERRAFORM_CLOUD_TOKEN
+          context: infra-pipeline
           working-directory: key-value-store
-          env: profile
-
+          
   # for use with bootstrap-cluster
