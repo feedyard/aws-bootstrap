@@ -12,7 +12,7 @@ workflows:
       - terraform/plan:
           name: plan-key-value-store
           context: infra-pipeline
-          aws-role: AWS_ROLE_PROFILE
+          aws-role: $AWS_ROLE_PROFILE
           aws-region: us-east-1
           encoded-file: environment.bin
           terraform-cloud-token: TERRAFORM_CLOUD_TOKEN
