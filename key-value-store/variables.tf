@@ -17,13 +17,17 @@ terraform {
 
 provider "aws" {
   region  = "${var.aws_region}"
+  assume_role {
+    role_arn     = "${var.aws_role}"
+    session_name = "bootstrap-aws-${var.environment}"
+  }
 }
 
-
-variable "environment" {}
-variable "aws_region" {}
 variable "prefix" {}
+variable "environment" {}
+variable "aws_role" {}
+variable "aws_region" {}
 
 variable "enable_key_rotation" {
-  default = "True"
+  default = true
 }
