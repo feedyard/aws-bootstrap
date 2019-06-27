@@ -44,13 +44,13 @@ POLICY
 }
 
 resource "aws_kms_key" "key-value-store-kms-key" {
-  description             = "key managed by terraform moduile tf-aws-state-bucket"
+  description             = "key managed by pipeline bootstrap-aws/key-value-store"
   deletion_window_in_days = "7"
   enable_key_rotation     = "true"
 }
 
 resource "aws_kms_alias" "bucket_key_alias" {
-  name          = "alias/managed-by/tf-aws-state-bucket/${random_pet.unique.id}"
+  name          = "alias/managed-by/bootstrap-aws/key-value-store/${random_pet.unique.id}"
   target_key_id = "${aws_kms_key.key-value-store-kms-key.id}"
 }
 

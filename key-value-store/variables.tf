@@ -32,5 +32,5 @@ data "aws_caller_identity" "current" {}
 
 locals {
   bucket-name = "${var.prefix}-key-value-store"
-  current-account-arn = "${data.aws_caller_identity.current.arn}"
+  current-account-id = "${data.aws_caller_identity.current.account_id}"
 }
