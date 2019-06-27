@@ -38,6 +38,6 @@ workflows:
           after-terraform:
             - run:
                 name: awspec test key/value store configuration
-                command: rspec key-value-store/spec/key_value_store_spec.rb
+                command: spec/key_value_store_spec.rb
           requires:
             - approve-plan-key-value-store
