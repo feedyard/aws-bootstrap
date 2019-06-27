@@ -28,17 +28,26 @@ resource "aws_s3_bucket_policy" "key-value-store-bucket-policy" {
   policy = <<POLICY
 {
   "Version": "2012-10-17",
-  "Statement": [{
-    "Effect": "Allow",
-    "Principal": { "AWS": "${local.current-account-id}" },
-    "Action": [
-        "s3:ListBucket",
-        "s3:GetObject",
-        "s3:PutObject",
-        "s3:DeleteObject"
-      ],
-    "Resource": "arn:aws:s3:::${local.bucket-name}"
-  }]
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": { "AWS": "${local.current-account-id}" },
+      "Action": [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject"
+        ],
+      "Resource": "arn:aws:s3:::${local.bucket-name}/*"
+    },
+    {
+      "Effect": "Allow",
+      "Principal": { "AWS": "${local.current-account-id}" },
+      "Action": [
+          "s3:ListBucket"
+        ],
+      "Resource": "arn:aws:s3:::${local.bucket-name}"
+    }
+  ]
 }
 POLICY
 }
