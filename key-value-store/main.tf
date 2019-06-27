@@ -2,7 +2,24 @@
 resource "aws_s3_bucket" "key-value-store" {
   bucket = "${local.bucket-name}"
   acl    = "private"
-  policy = "${data.aws_iam_policy_document.key-value-store-policy-document.json}"
+  policy = <<EOF
+{
+  "Version":"2012-10-17",
+  "Statement":[
+    {
+      "Effect":"Allow",
+      "Principal": { "AWS": ["${local.current-account-arn}"] },
+      "Action": [
+        "s3:ListBucket",
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:DeleteObject"
+      ]
+      "Resource":"arn:aws:s3:::examplebucket/*"
+    }
+  ]
+}
+EOF
 
   versioning {
     enabled = "true"
@@ -46,66 +63,56 @@ resource "aws_s3_bucket_public_access_block" "mod" {
   block_public_policy = true
 }
 
-data "aws_iam_policy_document" "key-value-store-policy-document" {
-  statement {
-    principals {
-      type        = "AWS"
-      identifiers = [
-        "${aws_iam_role.access-bootstrap-key-value-store.arn}",
-        "${var.aws_role}"
-      ]
-    }
-    actions = [
-      "s3:ListBucket",
-      "s3:GetBucketLocation",
-    ]
-    resources = [
-      "arn:aws:s3:::${local.bucket-name}"
-    ]
-  }
-  statement {
-    principals {
-      type        = "AWS"
-      identifiers = [
-        "${aws_iam_role.access-bootstrap-key-value-store.arn}",
-        "${var.aws_role}"
-      ]
-    }
-    actions = [
-      "s3:PutObject",
-      "s3:GetObject",
-      "s3:DeleteObject"
-    ]
-    resources = [
-      "arn:aws:s3:::${local.bucket-name}/*"
-    ]
-  }
-}
-
 # profile account role for accessing the bootstrap key/value store
-resource "aws_iam_role" "access-bootstrap-key-value-store" {
-  name               = "AccessBootstrapKeyValueStoreRole"
-  assume_role_policy = "${data.aws_iam_policy_document.access-key-value-store-policy-document.json}"
-}
-
-data "aws_iam_policy_document" "access-key-value-store-policy-document" {
-  statement {
-    actions = [
-      "s3:ListBucket",
-      "s3:GetBucketLocation",
-    ]
-    resources = [
-      "arn:aws:s3:::${local.bucket-name}"
-    ]
-  }
-  statement {
-    actions = [
-      "s3:PutObject",
-      "s3:GetObject",
-      "s3:DeleteObject"
-    ]
-    resources = [
-      "arn:aws:s3:::${local.bucket-name}/*"
-    ]
-  }
-}
+//resource "aws_iam_role" "access-bootstrap-key-value-store-role" {
+//  name               = "AccessBootstrapKeyValueStoreRole"
+//  assume_role_policy = <<EOF
+//{
+//  "Version":"2012-10-17",
+//  "Statement":[
+//    {
+//      "Effect":"Allow",
+//      "Principal": { "AWS": ["${local.current-account-arn}"] },
+//      "Action": [
+//        "s3:GetObject",
+//      ]
+//      "Resource":"arn:aws:s3:::examplebucket/*"
+//    }
+//  ]
+//}
+//EOF
+//}
+//
+//resource "aws_iam_policy" "access-bootstrap-key-value-store-policy" {
+//  name   = "AccessBootstrapKeyValueStore"
+//  path   = "/"
+//  policy = "${data.aws_iam_policy_document.access-key-value-store-policy-document.json}"
+//}
+//
+//data "aws_iam_policy_document" "access-key-value-store-policy-document" {
+//  statement {
+//    actions = [
+//      "s3:ListBucket",
+//      "s3:GetBucketLocation",
+//    ]
+//    resources = [
+//      "arn:aws:s3:::${local.bucket-name}"
+//    ]
+//  }
+//  statement {
+//    actions = [
+//      "s3:PutObject",
+//      "s3:GetObject",
+//      "s3:DeleteObject"
+//    ]
+//    resources = [
+//      "arn:aws:s3:::${local.bucket-name}/*"
+//    ]
+//  }
+//}
+//
+//resource "aws_iam_policy_attachment" "attach-key-value-store-access-policy-to-role" {
+//  name       = "AccessBootstrapKeyValueStore"
+//  roles      = ["${aws_iam_role.access-bootstrap-key-value-store-role.name}"]
+//  policy_arn = "${aws_iam_policy.access-bootstrap-key-value-store-policy.arn}"
+//}
