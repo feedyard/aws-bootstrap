@@ -30,7 +30,7 @@ resource "aws_s3_bucket_policy" "key-value-store-bucket-policy" {
   "Version": "2012-10-17",
   "Statement": [{
     "Effect": "Allow",
-    "Principal": { "AWS": "${local.current-account-arn}" },
+    "Principal": { "AWS": "${local.current-account-id}" },
     "Action": [
         "s3:ListBucket",
         "s3:GetObject",
