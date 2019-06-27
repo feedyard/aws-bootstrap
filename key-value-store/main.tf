@@ -28,12 +28,11 @@ resource "aws_s3_bucket_policy" "key-value-store-bucket-policy" {
   policy = <<POLICY
 {
   "Version": "2012-10-17",
-  "Id": "key-value-store",
   "Statement": [
     {
       "Effect": "Allow",
       "Principal": {
-        "AWS": "${local.current-account-arn}"",
+        "AWS": "${local.current-account-arn}",
       },
       "Action": [
         "s3:ListBucket",
