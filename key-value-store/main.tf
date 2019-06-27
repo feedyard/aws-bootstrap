@@ -15,7 +15,9 @@ resource "aws_s3_bucket" "key-value-store" {
         "s3:PutObject",
         "s3:DeleteObject"
       ]
-      "Resource":"arn:aws:s3:::examplebucket/*"
+      "Resource": [
+        "arn:aws:s3:::${local.bucket-name}"
+      ]
     }
   ]
 }
