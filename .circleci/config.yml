@@ -68,7 +68,7 @@ workflows:
     jobs:
       - approve-create-pipeline-cluster:
           type: approval
-      - terraform/plan:
+      - terraform/aws:
           name: pipeline-cluster-plan
       - approve-pipeline-cluster-plan:
           type: approval
