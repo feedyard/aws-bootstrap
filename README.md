@@ -4,7 +4,7 @@ Assumptions: use of AWS Organization with a master/sub-account relationship stru
   
 ## cloud-native approach
 
-Cloud based tools that encourage development practices that sustain software-defined infrastructure and loose coupling,  
+Cloud based tools built upon development practices that sustain software-defined infrastructure and loose coupling,  
 while significantly accelerating cloud native adoption. (used throughout these resources. _see SaaS selection models_)  
 
 
@@ -23,17 +23,42 @@ individual members of the team that will be maintaining the Platform product hav
 that includes a role with admin permissions in each of the member accounts, and a set of bootstrap credentials exists  
 in the Master account with similar permissions in the member accounts. The role ARN is used in the configuration.   
 
-Although feedyard IaC examples assume the use of Hashicorp's Vault and Consul for retrieval of secrets and environmental  
-config values, in a greenfield setting these services are not yet available. Even when deployed, there will remain the  
-operational concern of infrastructure recovery in situations where the primary secret and config service is unavailable.  
-
-To facilitate these recovery concerns and provide such services during bootstrap, AWS Secrets Manager is used for storing  
-and retrieving secure information and s3 is used as a configuration key/value store.
-
 If you are able to make use of the above SaaS offerings, then you only need the programmatic access keys from the master  
 account to proceed.
 
-*s3 as a key/value store*  
+## Using the bootstrap-aws examples
+
+The CircleCI pipeline workflows in the example assume use of the in-repo encryption of keys process supported by the  
+feedyard/common-pipeline-tasks circleci Orb (see orb registry page for details). The pipelines also rely on the  
+feedyard/terraform orb.  
+
+.circleci/config.yaml defines three optional workflows, depending on your situation.
+
+*bootstrap-aws-key-value-store*  
+
+Secrets management and non-secure configuration management are needed from the start. Definitely a chicken/egg situation.  
+Hashicorp Vault and Consul are excellent, production worthy options and will be used in general throughout the feedyard  
+examples. In a bootstrap situation where these are not yet available, an alternative is necessary. Even when they are  
+available, there will continue to be some keys/config that must persist outside the general stores for rapid recover  
+DR and rapid recovery. In this AWS example, Secrets Management Service and an S3 bucket are used to fill these requirements  
+respectively. DynamoDB is another alternative for a key/store that many people find effective.
+
+Tools to simply use of these stores within a ci/cd pipeline:  
+
+_kvs_. Python package cli for interacting with s3 as basic key/value store.
+ 
+ 
+*bootstrap-secure-state-storage*  
+
+Creates appropriately configured s3 target for use as terraform remote state store. Required before initial terraform  
+pipelines can be deployed.  
+
+
+*bootstrap-pipeline-cluster*  
+
+Creates basic EKS cluster for use as a deployment location for pipeline tool where it must be self managed in whatever  
+degree. (e.g., for private agents used by BuildKite or Azure DevOps, or fully managed tools such as jenkins)  
+
 
 [AWS-IAM only example](https://github.com/feedyard/baseline-aws-auth-iam-only)  
 [AWS idp integration example](https://github.com/feedyard/baseline-aws-auth-idp)
