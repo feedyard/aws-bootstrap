@@ -10,7 +10,7 @@ workflows:
   # Create S3 bucket in 'profile' account for use as bootstrap and DR key/value store (pre-Consul)
   bootstrap-aws-key-value-store:
     jobs:
-      - approve-create-key-value-store:
+      - approve-provision-key-value-store:
           type: approval
       - terraform/aws:
           name: plan-key-value-store
@@ -24,7 +24,7 @@ workflows:
           context: infra-pipeline
           working-directory: key-value-store
           requires:
-            - approve-create-key-value-store
+            - approve-provision-key-value-store
       - approve-plan-key-value-store:
           type: approval
           requires:
@@ -51,12 +51,12 @@ workflows:
   # (when you are unable to use terraform cloud)
   bootstrap-aws-secure-state-storage:
     jobs:
-      - approve-create-secure-state-storage:
+      - approve-provision-secure-state-storage:
           type: approval
       - terraform/aws:
           name: plan-secure-state-storage
           plan-step: true
-          env: profile
+          env: bootstrap
           aws-role: $AWS_ROLE_SANDBOX
           aws-region: us-east-1
           encoded-file: environment.bin
@@ -65,7 +65,7 @@ workflows:
           context: infra-pipeline
           working-directory: secure-state-storage
           requires:
-            - approve-create-secure-state-storage
+            - approve-provision-secure-state-storage
       - approve-secure-state-storage-plan:
           type: approval
           requires:
@@ -77,7 +77,7 @@ workflows:
   # (when you are unable to use a SaaS tool)
   bootstrap-aws-pipeline-cluster:
     jobs:
-      - approve-create-pipeline-cluster:
+      - approve-provision-pipeline-cluster:
           type: approval
 #      - terraform/aws:
 #          name: pipeline-cluster-plan
