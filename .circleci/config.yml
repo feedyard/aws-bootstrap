@@ -55,12 +55,23 @@ workflows:
           type: approval
       - terraform/aws:
           name: plan-secure-state-storage
+          plan-step: true
+          env: profile
+          aws-role: $AWS_ROLE_SANDBOX
+          aws-region: us-east-1
+          encoded-file: environment.bin
+          use-provider-role: true
+          terraform-cloud-token: $TERRAFORM_CLOUD_TOKEN
+          context: infra-pipeline
+          working-directory: secure-state-storage
+          requires:
+            - approve-create-secure-state-storage
       - approve-secure-state-storage-plan:
           type: approval
           requires:
             - plan-secure-state-storage
-      - terraform/aws:
-          name: apply-secure-state-storage
+#      - terraform/aws:
+#          name: apply-secure-state-storage
 
   # Create EKS cluster in a sandbox account to use as compute to bootstrap a self-managed pipeline tool
   # (when you are unable to use a SaaS tool)
@@ -68,11 +79,11 @@ workflows:
     jobs:
       - approve-create-pipeline-cluster:
           type: approval
-      - terraform/aws:
-          name: pipeline-cluster-plan
-      - approve-pipeline-cluster-plan:
-          type: approval
-          requires:
-            - pipeline-cluster-plan
-      - terraform/aws:
-          name: apply-pipeline-cluster
+#      - terraform/aws:
+#          name: pipeline-cluster-plan
+#      - approve-pipeline-cluster-plan:
+#          type: approval
+#          requires:
+#            - pipeline-cluster-plan
+#      - terraform/aws:
+#          name: apply-pipeline-cluster
