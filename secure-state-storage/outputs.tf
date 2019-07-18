@@ -1,11 +1,11 @@
-output "state_bucket_id" {
-  value = "${module.state_bucket.id}"
+output "secure_state_storage_id" {
+  value = "${aws_s3_bucket.secure-state-storage.id}"
 }
 
-output "state_bucket_arn" {
-  value = "${module.state_bucket.arn}"
+output "secure_state_storage_arn" {
+  value = "${aws_s3_bucket.secure-state-storage.arn}"
 }
 
-output "state_bucket_key_id" {
-  value = "${module.state_bucket.key_id}"
+output "secure_state_storage_key_id" {
+  value = "${aws_kms_key.secure-state-storage-kms-key.key_id}"
 }

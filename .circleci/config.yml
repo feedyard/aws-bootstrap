@@ -49,7 +49,7 @@ workflows:
 
   # Create S3 bucket in Production account for use as di-platform product team's Terraform remote state store
   # (when you are unable to use terraform cloud)
-  bootstrap-secure-state-storage:
+  bootstrap-aws-secure-state-storage:
     jobs:
       - approve-create-secure-state-storage:
           type: approval
@@ -64,7 +64,7 @@ workflows:
 
   # Create EKS cluster in a sandbox account to use as compute to bootstrap a self-managed pipeline tool
   # (when you are unable to use a SaaS tool)
-  bootstrap-pipeline-cluster:
+  bootstrap-aws-pipeline-cluster:
     jobs:
       - approve-create-pipeline-cluster:
           type: approval
